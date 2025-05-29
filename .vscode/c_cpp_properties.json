@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/rg/repos/edk2/MdePkg/Include",
+                "/home/rg/repos/edk2/MdePkg/Include/X64",
+                "/home/rg/repos/edk2/MdePkg/Include/IndustryStandard",
+                "/home/rg/repos/edk2/MdePkg/Library/UefiBootServicesTableLib",
+                "/home/rg/repos/edk2/MdePkg/Library/BaseLib",
+                "/home/rg/repos/edk2/MdePkg/Library/UefiLib",
+                "/home/rg/repos/edk2/MdePkg/Include/Protocol",
+                "/home/rg/repos/edk2/MdePkg/Include/Guid"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}

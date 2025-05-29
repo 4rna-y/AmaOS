@@ -9,5 +9,7 @@ EFI_STATUS EFIAPI UefiMain(
 {
     Print(L"Hello, UEFI World!\n");
 
+    for (;;) {}
+
     return EFI_SUCCESS;
 }
