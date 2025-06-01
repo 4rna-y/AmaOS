@@ -15,4 +15,4 @@ kernel.o: KernelMain.cpp BootInfo.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f kernel.o kernel.elf
+	rm -f ./build/kernel.o ./build/kernel.elf

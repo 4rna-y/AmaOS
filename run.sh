@@ -5,7 +5,7 @@ sudo mount -o loop fat.img mnt
 sudo mkdir -p mnt/EFI/BOOT
 sudo mkdir -p mnt/amaos
 sudo cp ~/repos/edk2/Build/Loader/DEBUG_GCC5/X64/Loader.efi mnt/EFI/BOOT/BOOTX64.EFI
-sudo cp ~/repos/osdev/Kernel/kernel.elf mnt/amaos/kernel.elf
+sudo cp ~/repos/osdev/Kernel/build/kernel.elf mnt/amaos/kernel.elf
 sudo umount mnt
 rmdir mnt
 
@@ -16,4 +16,4 @@ qemu-system-x86_64 \
     -drive file=fat.img,format=raw,if=virtio \
     -device VGA,vgamem_mb=256 \
     -display gtk \
-    -net none -serial mon:stdio
+    -net none
