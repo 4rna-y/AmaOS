@@ -1,14 +1,16 @@
 [Defines]
-    INF_VERSION                    = 0x00010006
-    BASE_NAME                      = Loader
-    FILE_GUID                      = 789de1d2-2b1f-43c8-b43f-f7b09c9af79f
-    MODULE_TYPE                    = UEFI_APPLICATION
-    VERSION_STRING                 = 0.1
-    ENTRY_POINT                    = UefiMain
-    VALID_ARCHITECTURES            = X64
+  INF_VERSION                    = 0x00010006
+  BASE_NAME                      = Loader
+  FILE_GUID                      = 789de1d2-2b1f-43c8-b43f-f7b09c9af79f
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 0.1
+  ENTRY_POINT                    = UefiMain
+  VALID_ARCHITECTURES            = X64
 
 [Sources]
   Loader.c
+  FileUtility.c
+  GraphicsUtility.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -18,4 +20,14 @@
   UefiBootServicesTableLib    
   UefiLib                    
   MemoryAllocationLib       
-  BaseLib                 
+  BaseLib                
+
+[Guids]
+  gEfiFileInfoGuid
+  gEfiAcpiTableGuid
+
+[Protocols]
+  gEfiLoadedImageProtocolGuid
+  gEfiLoadFileProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid 
+  gEfiEdidDiscoveredProtocolGuid

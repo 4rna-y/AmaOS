@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "uefibootservicestablelib.h": "c",
+        "basememorylib.h": "c",
+        "memoryallocationlib.h": "c",
+        "simplefilesystem.h": "c",
+        "uefilib.h": "c"
+    }
+}

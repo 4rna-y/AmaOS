@@ -9,7 +9,7 @@ extern "C" void KernelMain(BootInfo* bootInfo)
 
     for (uint64_t i = 0; i < size; ++i)
     {
-        frameBuffer[i] = 0;
+        frameBuffer[i] = 255;
     }
 
     for (;;)

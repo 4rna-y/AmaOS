@@ -11,9 +11,9 @@ typedef struct
     uint32_t mapDescriptorVersion;
     uint64_t frameBufferBase;
     uint64_t frameBufferSize;
-    uint32_t fbWidth;
-    uint32_t fbHeight;
-    uint64_t rsdpAddress;
+    uint32_t frameBufferWidth;
+    uint32_t frameBufferHeight;
+    uint64_t rootSystemDescriptionPointerAddress;
     char* cmdLine;
 } BootInfo;
 
