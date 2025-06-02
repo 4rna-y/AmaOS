@@ -235,13 +235,6 @@ EFI_STATUS EFIAPI UefiMain(
         Halt();
     }
 
-    status = GetMemoryMap(&memMap, &mapSize, &mapKey, &descSize, &descVersion);
-    if (EFI_ERROR(status))
-    {
-        Print(L"[ERROR] GetMemoryMap : %r\n", status);
-        Halt();
-    }
-
     status = GetRootSystemDescriptionPointerAddress(systemTable, &rootSystemDescriptionPointerAddress);
     if (EFI_ERROR(status))
     {
@@ -256,6 +249,20 @@ EFI_STATUS EFIAPI UefiMain(
         Halt();
     }
 
+    status = GetMemoryMap(&memMap, &mapSize, &mapKey, &descSize, &descVersion);
+    if (EFI_ERROR(status))
+    {
+        Print(L"[ERROR] GetMemoryMap : %r\n", status);
+        Halt();
+    }
+
+    status = gBS->ExitBootServices(imageHandle, mapKey);
+    if (EFI_ERROR(status))
+    {
+        Print(L"[ERROR] ExitBootServices : %r\n", status);
+        Halt();
+    }
+
     info.memoryMap = memMap;
     info.memoryMapSize = mapSize;
     info.mapDescriptorSize = descSize;
@@ -266,13 +273,6 @@ EFI_STATUS EFIAPI UefiMain(
     info.frameBufferHeight = mode.height;
     info.rootSystemDescriptionPointerAddress = (unsigned long long)rootSystemDescriptionPointerAddress;
     info.cmdLine = commandLine;
-
-    status = gBS->ExitBootServices(imageHandle, mapKey);
-    if (EFI_ERROR(status))
-    {
-        Print(L"[ERROR] ExitBootServices : %r\n", status);
-        Halt();
-    }
 
     ((void (*)(BootInfo*))kernelEntry)(&info);
 

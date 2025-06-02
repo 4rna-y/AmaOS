@@ -10,7 +10,7 @@ sudo umount mnt
 rmdir mnt
 
 qemu-system-x86_64 \
-    -enable-kvm -machine q35 -m 1024M -bios /usr/share/OVMF/OVMF_CODE.fd \
+    -enable-kvm -cpu host -machine q35 -m 1024M -bios /usr/share/OVMF/OVMF_CODE.fd \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE.fd \
     -drive if=pflash,format=raw,file=/usr/share/OVMF/OVMF_VARS.fd \
     -drive file=fat.img,format=raw,if=virtio \
