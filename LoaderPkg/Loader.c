@@ -13,7 +13,7 @@
 
 #include "FileUtility.h"
 #include "GraphicsUtility.h"
-#include "../Kernel/BootInfo.h"
+#include "../Kernel/LoaderBootInfo.h"
 
 EFI_STATUS LoadKernelElf(
     IN VOID*    elfBuffer,
@@ -188,7 +188,7 @@ EFI_STATUS EFIAPI UefiMain(
     UINT64 frameBufferSize = 0;
     UINT64 rootSystemDescriptionPointerAddress = 0;
     CHAR8* commandLine = NULL;
-    BootInfo info = {0};
+    LOADER_BOOT_INFO info = { 0 };
 
     status = InitializeGraphics(&gop);
     if (EFI_ERROR(status))
@@ -256,10 +256,38 @@ EFI_STATUS EFIAPI UefiMain(
         Halt();
     }
 
-    status = gBS->ExitBootServices(imageHandle, mapKey);
+    UINT64 highestPhys = 0;
+    for (UINTN i = 0; i < mapSize / descSize; i++)
+    {
+        EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint8_t*)memMap + i * descSize);
+        if (desc->Type != EfiConventionalMemory) continue;
+
+        UINT64 end = desc->PhysicalStart + (desc->NumberOfPages << 12);
+        if (end > highestPhys) highestPhys = end;
+    }
+
+    UINT64 maxFrames = (highestPhys + EFI_PAGE_SIZE - 1) / EFI_PAGE_SIZE;
+    UINT64 bitmapBytes = (maxFrames + 7) >> 3;
+    UINTN bitmapPages = (bitmapBytes + EFI_PAGE_SIZE - 1) / EFI_PAGE_SIZE;
+    EFI_PHYSICAL_ADDRESS bitmapBase = 0;
+    status = gBS->AllocatePages(AllocateAnyPages, EfiLoaderData, bitmapPages, &bitmapBase);
     if (EFI_ERROR(status))
     {
-        Print(L"[ERROR] ExitBootServices : %r\n", status);
+        Print(L"[ERROR] GetHighestPhysicalMemory : %r\n", status);
+        Halt();
+    }
+
+    FreePool(memMap);
+    memMap = NULL;
+    mapSize = 0;
+    mapKey = 0;
+    descSize = 0;
+    descVersion = 0;
+
+    status = GetMemoryMap(&memMap, &mapSize, &mapKey, &descSize, &descVersion);
+    if (EFI_ERROR(status))
+    {
+        Print(L"[ERROR] GetMemoryMap : %r\n", status);
         Halt();
     }
 
@@ -267,6 +295,8 @@ EFI_STATUS EFIAPI UefiMain(
     info.memoryMapSize = mapSize;
     info.mapDescriptorSize = descSize;
     info.mapDescriptorVersion = descVersion;
+    info.pageBitmapBase = (unsigned long long)bitmapBase;
+    info.pageBitmapSize = (unsigned long long)bitmapBytes;
     info.frameBufferBase = (unsigned long long)frameBufferBase;
     info.frameBufferSize = (unsigned long long)frameBufferSize;
     info.frameBufferWidth = mode.width;
@@ -274,7 +304,14 @@ EFI_STATUS EFIAPI UefiMain(
     info.rootSystemDescriptionPointerAddress = (unsigned long long)rootSystemDescriptionPointerAddress;
     info.cmdLine = commandLine;
 
-    ((void (*)(BootInfo*))kernelEntry)(&info);
+    status = gBS->ExitBootServices(imageHandle, mapKey);
+    if (EFI_ERROR(status))
+    {
+        Print(L"[ERROR] ExitBootServices : %r\n", status);
+        Halt();
+    }
+
+    ((void (*)(LOADER_BOOT_INFO*))kernelEntry)(&info);
 
     Print(L"DOUYATTE OMAE HA KOKO NI TADORI TUITA??\n");
     UNREACHABLE();

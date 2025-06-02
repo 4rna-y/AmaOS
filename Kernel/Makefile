@@ -1,18 +1,31 @@
 TARGET = x86_64-elf
 
-CXX = clang++
-CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -std=gnu++17 -nostdlib -fno-exceptions -fno-rtti -I.
+OBJDIR   := build
+SRCDIR   := src
+ROOTSRC  := KernelMain.cpp
 
-LD = ld.lld
-LDFLAGS = -T linker.ld --no-relax -nostdlib
+CXX = clang++
+CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -std=gnu++17 -nostdlib -fno-exceptions -fno-rtti -I. -I./include
+
+SRC_CPP := $(shell find $(SRCDIR) -name '*.cpp')
+SRC_CPP += $(ROOTSRC)
+
+OBJS := $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRC_CPP:$(SRCDIR)/%=%))
 
 all: kernel.elf
 
-kernel.elf: kernel.o
-	$(LD) $(LDFLAGS) -o $@ $^
+kernel.elf: $(OBJS) linker.ld
+	ld.lld -T linker.ld --no-relax -nostdlib -o $@ $(OBJS)
 
-kernel.o: KernelMain.cpp BootInfo.h
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f ./build/kernel.o ./build/kernel.elf
+	rm -rf $(OBJDIR) kernel.elf
+
+.PHONY: all clean

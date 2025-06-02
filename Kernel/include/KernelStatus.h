@@ -1,0 +1,5 @@
+#pragma once
+
+#define KERNEL_STATUS int
+#define KERNEL_SUCCESS (KERNEL_STATUS)0
+#define KERNEL_FAILURE (KERNEL_STATUS)1

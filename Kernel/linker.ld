@@ -1,4 +1,4 @@
-ENTRY(KernelMain)
+ENTRY(k_main)
 
 SECTIONS {
     . = 0x200000;
