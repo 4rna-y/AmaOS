@@ -34,8 +34,8 @@ EFI_STATUS LoadKernelElf(
     int ei3 = ehdr->e_ident[EI_MAG3] != ELFMAG3;
     int eic = ehdr->e_ident[EI_CLASS] != ELFCLASS64;
     int eid = ehdr->e_ident[EI_DATA] != ELFDATA2LSB;
-    int et = ehdr->e_type != ET_EXEC;
-    int em = ehdr->e_machine != EM_X86_64;
+    int et  = ehdr->e_type != ET_EXEC;
+    int em  = ehdr->e_machine != EM_X86_64;
 
     if (ei0 || ei1 || ei2 || ei3 || eic || eid || et || em) return EFI_UNSUPPORTED;
 

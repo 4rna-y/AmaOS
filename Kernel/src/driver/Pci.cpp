@@ -53,7 +53,7 @@ uint32_t k_pci_write32(
     return inl(0xCFC);
 }
 
-void k_pci_write32(
+void k_pci_read32(
     uint8_t bus, 
     uint8_t dev, 
     uint8_t func, 
@@ -73,20 +73,20 @@ volatile uint8_t* find_ahci_hba_base()
         {
             for (uint8_t func = 0; func < 8; ++func)
             {
-                uint32_t venDid = pci_read32(bus, dev, func, 0x00);
+                uint32_t venDid = k_pci_read32(bus, dev, func, 0x00);
                 uint16_t venderId = (uint16_t)(venDid & 0xFFFF);
 
                 if (venderId == 0xFFFF) continue;
 
-                uint32_t classSig = pci_read32(bus, dev, func, 0x08);
+                uint32_t classSig = k_pci_read32(bus, dev, func, 0x08);
                 uint8_t classCode = (uint8_t)((classSig >> 24) & 0xFF);
                 uint8_t subClass = (uint8_t)((classSig >> 16) & 0xFF);
                 uint8_t progIF = (uint8_t)((classSig >> 8) & 0xFF);
 
                 if (classCode == 0x01 && subClass == 0x06 && progIF == 0x01)
                 {
-                    uint32_t bar5Low = pci_read32(bus, dev, func, 0x24);
-                    uint32_t bar5High = pci_read32(bus, dev, func,0x28);
+                    uint32_t bar5Low = k_pci_read32(bus, dev, func, 0x24);
+                    uint32_t bar5High = k_pci_read32(bus, dev, func,0x28);
                     uint32_t phys = ((uint8_t)bar5High << 32) | ((uint8_t)bar5Low & 0xFFFFFFFFULL);
                     
                     phys &= ~0xFULL;
