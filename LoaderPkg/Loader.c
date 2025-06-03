@@ -186,6 +186,8 @@ EFI_STATUS EFIAPI UefiMain(
     UINT32 descVersion = 0;
     UINT64 frameBufferBase = 0;
     UINT64 frameBufferSize = 0;
+    UINT8 bytePerPixel = 4;
+    UINT8 isBGR = 0;
     UINT64 rootSystemDescriptionPointerAddress = 0;
     CHAR8* commandLine = NULL;
     LOADER_BOOT_INFO info = { 0 };
@@ -291,6 +293,8 @@ EFI_STATUS EFIAPI UefiMain(
         Halt();
     }
 
+    if (mode.pixelFormat == PixelBlueGreenRedReserved8BitPerColor) isBGR = 1;
+
     info.memoryMap = memMap;
     info.memoryMapSize = mapSize;
     info.mapDescriptorSize = descSize;
@@ -301,6 +305,9 @@ EFI_STATUS EFIAPI UefiMain(
     info.frameBufferSize = (unsigned long long)frameBufferSize;
     info.frameBufferWidth = mode.width;
     info.frameBufferHeight = mode.height;
+    info.isBGR = isBGR;
+    info.bytesPerPixel = bytePerPixel;
+    info.pixelsPerScanLine = mode.pixelsPerScanLine;
     info.rootSystemDescriptionPointerAddress = (unsigned long long)rootSystemDescriptionPointerAddress;
     info.cmdLine = commandLine;
 

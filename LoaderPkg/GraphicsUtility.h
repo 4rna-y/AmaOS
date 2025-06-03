@@ -15,6 +15,7 @@ typedef struct
     UINT32 width;
     UINT32 height;
     EFI_GRAPHICS_PIXEL_FORMAT pixelFormat;
+    UINT32 pixelsPerScanLine;
 } LOADER_DISPLAY_MODE;
 
 

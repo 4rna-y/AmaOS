@@ -1,42 +1,37 @@
 #include "LoaderBootInfo.h"
 
 #include "memory/PhysicalPageAllocator.h"
+#include "driver/Ahci.h"
+
+#include "graphics/DirectFrameWriter.h"
 
 #include <stddef.h>
 #include <stdint.h>
 
 extern "C" void k_main(LOADER_BOOT_INFO* bootInfo)
 {
-    uint8_t c = 255;
-    if (k_ppa_init(bootInfo) != KERNEL_SUCCESS)
-    {
-        c = 0;
-    }
-
-    void* p = k_ppa_alloc();
-    if (p == nullptr)
-    {
-        c = 0;
-    }
-
-    if (k_ppa_free(p) != KERNEL_SUCCESS)
-    {
-        c = 128;
-    }
-
     uint8_t* frameBuffer = reinterpret_cast<uint8_t*>(bootInfo->frameBufferBase);
     uint64_t size = bootInfo->frameBufferSize;
+    uint32_t width = bootInfo->frameBufferWidth;
+    uint32_t height = bootInfo->frameBufferHeight;
 
-    for (uint64_t i = 0; i < size; ++i)
-    {
-        frameBuffer[i] = c;
-    }
+    FRAME_BUFFER_INFO fbi = 
+    { 
+        .base = frameBuffer, 
+        .size = size, 
+        .pixelsPerScanLine = bootInfo->pixelsPerScanLine,
+        .bytesPerPixel = bootInfo->bytesPerPixel,
+        .isBGR = bootInfo->isBGR,
+        .frameSize = (SIZE)
+        { 
+            .width = width, .height = height 
+        } 
+    };
 
-    for (;;)
-    {
-        __asm__ volatile("hlt");
-    }
+    k_dfw_draw_box(&fbi, { 0, 0 }, { width, height }, { 255, 0, 0 });
+    k_dfw_draw_box(&fbi, { 10, 10 }, { 10, 10 }, { 0, 255, 0 });
+
+    for (;;) { __asm__ volatile("hlt"); }
+    
 }
 
-
-    

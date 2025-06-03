@@ -110,6 +110,7 @@ EFI_STATUS GetDisplayMode(
     mode->width = gop->Mode->Info->HorizontalResolution;
     mode->height = gop->Mode->Info->VerticalResolution;
     mode->pixelFormat = gop->Mode->Info->PixelFormat;
+    mode->pixelsPerScanLine = gop->Mode->Info->PixelsPerScanLine;
 
     return EFI_SUCCESS;
 }

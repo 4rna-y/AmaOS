@@ -19,7 +19,7 @@ static inline void outw(uint16_t port, uint16_t value)
 
 static inline uint16_t inw(uint16_t port)
 {
-    uint8_t value;
+    uint16_t value;
     __asm__ volatile ("inw %1, %0" : "=a"(value) : "Nd"(port));
     return value;
 }
@@ -31,7 +31,7 @@ static inline void outl(uint16_t port, uint32_t value)
 
 static inline uint32_t inl(uint16_t port)
 {
-    uint8_t value;
+    uint32_t value;
     __asm__ volatile ("inl %1, %0" : "=a"(value) : "Nd"(port));
     return value;
 }
@@ -42,7 +42,7 @@ static inline void pci_config_address(uint8_t bus, uint8_t dev, uint8_t func, ui
     outl(0xCF8, address);
 }
 
-uint32_t k_pci_write32(
+uint32_t k_pci_read32(
     uint8_t bus, 
     uint8_t dev, 
     uint8_t func, 
@@ -53,7 +53,7 @@ uint32_t k_pci_write32(
     return inl(0xCFC);
 }
 
-void k_pci_read32(
+void k_pci_write32(
     uint8_t bus, 
     uint8_t dev, 
     uint8_t func, 
@@ -65,7 +65,7 @@ void k_pci_read32(
     outl(0xCFC, value);
 }
 
-volatile uint8_t* find_ahci_hba_base()
+volatile uint8_t* k_find_ahci_hba_base()
 {
     for (uint8_t bus = 0; bus < 256; ++bus)
     {
@@ -87,7 +87,7 @@ volatile uint8_t* find_ahci_hba_base()
                 {
                     uint32_t bar5Low = k_pci_read32(bus, dev, func, 0x24);
                     uint32_t bar5High = k_pci_read32(bus, dev, func,0x28);
-                    uint32_t phys = ((uint8_t)bar5High << 32) | ((uint8_t)bar5Low & 0xFFFFFFFFULL);
+                    uint64_t phys = ((uint64_t)bar5High << 32) | ((uint64_t)bar5Low & 0xFFFFFFFFULL);
                     
                     phys &= ~0xFULL;
 

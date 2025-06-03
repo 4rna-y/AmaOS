@@ -15,6 +15,9 @@ typedef struct
     uint64_t frameBufferSize;
     uint32_t frameBufferWidth;
     uint32_t frameBufferHeight;
+    uint32_t pixelsPerScanLine;
+    uint8_t bytesPerPixel;
+    uint8_t isBGR;
     uint64_t rootSystemDescriptionPointerAddress;
     char* cmdLine;
 }LOADER_BOOT_INFO;
