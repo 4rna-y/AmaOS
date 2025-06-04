@@ -1,22 +1,37 @@
 #include "graphics/DirectFrameWriter.h"
 
-KERNEL_STATUS k_dfw_draw_box(FRAME_BUFFER_INFO* info,
-                             POINT           point,
-                             SIZE            size,
-                             COLOR           color)
-{
+static FRAME_BUFFER_INFO* g_fb_info = nullptr;
 
-    if (point.x >= info->frameSize.width || point.y >= info->frameSize.height) 
+KERNEL_STATUS k_dfw_init(FRAME_BUFFER_INFO* info)
+{
+    if (info != nullptr) return KERNEL_FAILURE;
+    g_fb_info = info;
+
+    return KERNEL_SUCCESS;
+}
+
+KERNEL_STATUS k_dfw_draw_pixel()
+{
+    if (g_fb_info == nullptr) return KERNEL_FAILURE;
+
+    return KERNEL_SUCCESS;
+}
+
+KERNEL_STATUS k_dfw_draw_box(POINT point, SIZE size, COLOR color)
+{
+    if (g_fb_info == nullptr) return KERNEL_FAILURE;
+
+    if (point.x >= g_fb_info->frameSize.width || point.y >= g_fb_info->frameSize.height) 
         return KERNEL_FAILURE;
 
     if (size.width == 0 || size.height == 0) return KERNEL_FAILURE;
 
-    if (point.x + size.width  > info->frameSize.width || point.y + size.height > info->frameSize.height) 
+    if (point.x + size.width  > g_fb_info->frameSize.width || point.y + size.height > g_fb_info->frameSize.height) 
         return KERNEL_FAILURE;
 
-    uint32_t pitchPixels = info->pixelsPerScanLine;
-    uint32_t bpp = info->bytesPerPixel;
-    uint64_t fbBytes = info->size;
+    uint32_t pitchPixels = g_fb_info->pixelsPerScanLine;
+    uint32_t bpp = g_fb_info->bytesPerPixel;
+    uint64_t fbBytes = g_fb_info->size;
 
     for (uint32_t y = 0; y < size.height; ++y) 
     {
@@ -30,19 +45,19 @@ KERNEL_STATUS k_dfw_draw_box(FRAME_BUFFER_INFO* info,
 
             if (bufferIdx + bpp - 1 >= fbBytes) continue;
             
-            if (info->isBGR) 
+            if (g_fb_info->isBGR) 
             {
-                info->base[bufferIdx + 0] = color.blue;
-                info->base[bufferIdx + 1] = color.green;
-                info->base[bufferIdx + 2] = color.red;
-                info->base[bufferIdx + 3] = 0;
+                g_fb_info->base[bufferIdx + 0] = color.blue;
+                g_fb_info->base[bufferIdx + 1] = color.green;
+                g_fb_info->base[bufferIdx + 2] = color.red;
+                g_fb_info->base[bufferIdx + 3] = 0;
             } 
             else 
             {
-                info->base[bufferIdx + 0] = color.red;
-                info->base[bufferIdx + 1] = color.green;
-                info->base[bufferIdx + 2] = color.blue;
-                info->base[bufferIdx + 3] = 0;
+                g_fb_info->base[bufferIdx + 0] = color.red;
+                g_fb_info->base[bufferIdx + 1] = color.green;
+                g_fb_info->base[bufferIdx + 2] = color.blue;
+                g_fb_info->base[bufferIdx + 3] = 0;
             }
         }
     }

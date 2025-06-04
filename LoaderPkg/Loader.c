@@ -175,7 +175,7 @@ EFI_STATUS EFIAPI UefiMain(
 
     EFI_GRAPHICS_OUTPUT_PROTOCOL* gop = NULL;
 
-    LOADER_DISPLAY_MODE mode = {0};
+    LOADER_DISPLAY_MODE mode = { .index = 0, .width = 0, .height = 0, .pixelFormat = PixelRedGreenBlueReserved8BitPerColor, .pixelsPerScanLine = 0 };
     VOID* elfBuffer = NULL;
     UINTN elfSize = 0;
     VOID* kernelEntry = NULL;
@@ -286,10 +286,21 @@ EFI_STATUS EFIAPI UefiMain(
     descSize = 0;
     descVersion = 0;
 
+    Print(L"aaa");
+
     status = GetMemoryMap(&memMap, &mapSize, &mapKey, &descSize, &descVersion);
     if (EFI_ERROR(status))
     {
         Print(L"[ERROR] GetMemoryMap : %r\n", status);
+        Halt();
+    }
+
+    Print(L"aaa");
+
+    status = gBS->ExitBootServices(imageHandle, mapKey);
+    if (EFI_ERROR(status))
+    {
+        Print(L"[ERROR] ExitBootServices : %r\n", status);
         Halt();
     }
 
@@ -310,13 +321,6 @@ EFI_STATUS EFIAPI UefiMain(
     info.pixelsPerScanLine = mode.pixelsPerScanLine;
     info.rootSystemDescriptionPointerAddress = (unsigned long long)rootSystemDescriptionPointerAddress;
     info.cmdLine = commandLine;
-
-    status = gBS->ExitBootServices(imageHandle, mapKey);
-    if (EFI_ERROR(status))
-    {
-        Print(L"[ERROR] ExitBootServices : %r\n", status);
-        Halt();
-    }
 
     ((void (*)(LOADER_BOOT_INFO*))kernelEntry)(&info);
 

@@ -28,8 +28,9 @@ extern "C" void k_main(LOADER_BOOT_INFO* bootInfo)
         } 
     };
 
-    k_dfw_draw_box(&fbi, { 0, 0 }, { width, height }, { 255, 0, 0 });
-    k_dfw_draw_box(&fbi, { 10, 10 }, { 10, 10 }, { 0, 255, 0 });
+    k_dfw_init(&fbi);
+    k_dfw_draw_box({ 0, 0 }, { width, height }, { 255, 0, 0 });
+    k_dfw_draw_box({ 20, 20 }, { 100, 100 }, { 255, 255, 0 });
 
     for (;;) { __asm__ volatile("hlt"); }
     
