@@ -6,28 +6,22 @@ KERNEL_STATUS k_dfw_draw_box(FRAME_BUFFER_INFO* info,
                              COLOR           color)
 {
 
-    if (point.x >= info->frameSize.width ||
-        point.y >= info->frameSize.height)
-    {
+    if (point.x >= info->frameSize.width || point.y >= info->frameSize.height) 
         return KERNEL_FAILURE;
-    }
 
-    if (size.width == 0 || size.height == 0) {
-        return KERNEL_FAILURE;
-    }
+    if (size.width == 0 || size.height == 0) return KERNEL_FAILURE;
 
-    if (point.x + size.width  > info->frameSize.width ||
-        point.y + size.height > info->frameSize.height)
-    {
+    if (point.x + size.width  > info->frameSize.width || point.y + size.height > info->frameSize.height) 
         return KERNEL_FAILURE;
-    }
 
     uint32_t pitchPixels = info->pixelsPerScanLine;
     uint32_t bpp = info->bytesPerPixel;
     uint64_t fbBytes = info->size;
 
-    for (uint32_t y = 0; y < size.height; ++y) {
-        for (uint32_t x = 0; x < size.width; ++x) {
+    for (uint32_t y = 0; y < size.height; ++y) 
+    {
+        for (uint32_t x = 0; x < size.width; ++x) 
+        {
             uint32_t dx = point.x + x;
             uint32_t dy = point.y + y;
 
