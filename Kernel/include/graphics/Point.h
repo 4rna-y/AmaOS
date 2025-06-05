@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-typedef struct 
+typedef struct _point
 {
     uint64_t x;
     uint64_t y;

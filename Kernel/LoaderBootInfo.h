@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct 
+typedef struct _loader_boot_info
 {
     uint64_t memoryMapSize;
     void* memoryMap;

@@ -4,7 +4,7 @@
 
 #include "Size.h"
 
-typedef struct 
+typedef struct _frame_buffer_info
 {
     uint8_t* base;
     uint64_t size;

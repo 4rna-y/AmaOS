@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-typedef struct 
+typedef struct _color
 {
     uint8_t red;
     uint8_t green;

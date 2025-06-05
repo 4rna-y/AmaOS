@@ -8,5 +8,6 @@
 #include "FrameBufferInfo.h"
 
 KERNEL_STATUS k_dfw_init(FRAME_BUFFER_INFO* info);
-KERNEL_STATUS k_dfw_draw_pixel();
+KERNEL_STATUS k_dfw_clear();
+KERNEL_STATUS k_dfw_draw_pixel(POINT point, COLOR color);
 KERNEL_STATUS k_dfw_draw_box(POINT point, SIZE size, COLOR color);

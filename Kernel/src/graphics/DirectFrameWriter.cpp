@@ -4,15 +4,46 @@ static FRAME_BUFFER_INFO* g_fb_info = nullptr;
 
 KERNEL_STATUS k_dfw_init(FRAME_BUFFER_INFO* info)
 {
-    if (info != nullptr) return KERNEL_FAILURE;
+    if (g_fb_info != nullptr) return KERNEL_FAILURE;
     g_fb_info = info;
 
     return KERNEL_SUCCESS;
 }
 
-KERNEL_STATUS k_dfw_draw_pixel()
+KERNEL_STATUS k_dfw_clear()
 {
     if (g_fb_info == nullptr) return KERNEL_FAILURE;
+    for (uint64_t i = 0; i < g_fb_info->size; i++)
+    {
+        g_fb_info->base[i] = 0;
+    }
+
+    return KERNEL_SUCCESS;
+}
+
+KERNEL_STATUS k_dfw_draw_pixel(POINT point, COLOR color)
+{
+    if (g_fb_info == nullptr) return KERNEL_FAILURE;
+
+    if (point.x >= g_fb_info->frameSize.width || point.y >= g_fb_info->frameSize.height) 
+        return KERNEL_FAILURE;
+
+    uint64_t bufferIdx = (uint64_t)(point.x + point.y * g_fb_info->pixelsPerScanLine) * g_fb_info->bytesPerPixel;
+
+    if (g_fb_info->isBGR) 
+    {
+        g_fb_info->base[bufferIdx + 0] = color.blue;
+        g_fb_info->base[bufferIdx + 1] = color.green;
+        g_fb_info->base[bufferIdx + 2] = color.red;
+        g_fb_info->base[bufferIdx + 3] = 0;
+    } 
+    else 
+    {
+        g_fb_info->base[bufferIdx + 0] = color.red;
+        g_fb_info->base[bufferIdx + 1] = color.green;
+        g_fb_info->base[bufferIdx + 2] = color.blue;
+        g_fb_info->base[bufferIdx + 3] = 0;
+    }
 
     return KERNEL_SUCCESS;
 }

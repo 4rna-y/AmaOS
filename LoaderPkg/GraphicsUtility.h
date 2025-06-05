@@ -9,7 +9,7 @@
 #define EDID_DTD_BLOCK_SIZE     18
 #define EDID_MIN_SIZE           128
 
-typedef struct
+typedef struct _loader_display_mode
 {
     UINT32 index;
     UINT32 width;
