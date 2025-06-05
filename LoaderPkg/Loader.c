@@ -115,6 +115,46 @@ EFI_STATUS GetMemoryMap(
     return status;
 }
 
+EFI_STATUS
+GetMemoryMapWithMargin(
+    OUT EFI_MEMORY_DESCRIPTOR**  memMap,
+    OUT UINTN*                  mapSize,
+    OUT UINTN*                  mapKey,
+    OUT UINTN*                  descSize,
+    OUT UINT32*                 descVersion
+)
+{
+    EFI_STATUS status;
+    UINTN      bufferSize = 0;
+    UINTN      bufferKey  = 0;
+    UINTN      bufferDescSize = 0;
+    UINT32     bufferDescVersion = 0;
+    EFI_MEMORY_DESCRIPTOR* buffer = NULL;
+
+    status = gBS->GetMemoryMap(&bufferSize, NULL, &bufferKey, &bufferDescSize, &bufferDescVersion);
+    if (status != EFI_BUFFER_TOO_SMALL) return status;
+    
+    UINTN allocSize = bufferSize + (2 * bufferDescSize);
+    status = gBS->AllocatePool(EfiLoaderData, allocSize, (VOID**)&buffer);
+    if (EFI_ERROR(status)) return status;
+    ZeroMem(buffer, allocSize);
+
+    bufferSize = bufferSize + (2 * bufferDescSize);
+    status = gBS->GetMemoryMap(&bufferSize, buffer, &bufferKey, &bufferDescSize, &bufferDescVersion);
+    if (EFI_ERROR(status)) 
+    {
+        gBS->FreePool(buffer);
+        return status;
+    }
+
+    *memMap       = buffer;
+    *mapSize      = bufferSize;
+    *mapKey       = bufferKey;
+    *descSize     = bufferDescSize;
+    *descVersion  = bufferDescVersion;
+    return EFI_SUCCESS;
+}
+
 EFI_STATUS GetRootSystemDescriptionPointerAddress(
     IN EFI_SYSTEM_TABLE* systemTable,
     OUT UINT64* rootSystemDescriptionPointer
@@ -251,7 +291,7 @@ EFI_STATUS EFIAPI UefiMain(
         Halt();
     }
 
-    status = GetMemoryMap(&memMap, &mapSize, &mapKey, &descSize, &descVersion);
+    status = GetMemoryMapWithMargin(&memMap, &mapSize, &mapKey, &descSize, &descVersion);
     if (EFI_ERROR(status))
     {
         Print(L"[ERROR] GetMemoryMap : %r\n", status);
@@ -279,6 +319,8 @@ EFI_STATUS EFIAPI UefiMain(
         Halt();
     }
 
+    Print(L"aaaa\n");
+
     FreePool(memMap);
     memMap = NULL;
     mapSize = 0;
@@ -286,16 +328,12 @@ EFI_STATUS EFIAPI UefiMain(
     descSize = 0;
     descVersion = 0;
 
-    Print(L"aaa");
-
-    status = GetMemoryMap(&memMap, &mapSize, &mapKey, &descSize, &descVersion);
+    status = GetMemoryMapWithMargin(&memMap, &mapSize, &mapKey, &descSize, &descVersion);
     if (EFI_ERROR(status))
     {
         Print(L"[ERROR] GetMemoryMap : %r\n", status);
         Halt();
     }
-
-    Print(L"aaa");
 
     status = gBS->ExitBootServices(imageHandle, mapKey);
     if (EFI_ERROR(status))
