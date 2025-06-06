@@ -1,106 +1,6 @@
 #include "graphics/StandardCharactorBitmapProvider.h"
 
-static inline const uint8_t* getCharBitmap(char c)
-{
-    unsigned char uc = (unsigned char)c;
-    if (uc < 128) 
-    {
-        return charBitmapTable[uc];
-    }
-    return nullptr;
-}
-
-static const uint8_t *charBitmapTable[128] =
-{
-    [0]  = nullptr, [1]  = nullptr, [2]  = nullptr, [3]  = nullptr,
-    [4]  = nullptr, [5]  = nullptr, [6]  = nullptr, [7]  = nullptr,
-    [8]  = nullptr, [9]  = nullptr, [10] = nullptr, [11] = nullptr,
-    [12] = nullptr, [13] = nullptr, [14] = nullptr, [15] = nullptr,
-    [16] = nullptr, [17] = nullptr, [18] = nullptr, [19] = nullptr,
-    [20] = nullptr, [21] = nullptr, [22] = nullptr, [23] = nullptr,
-    [24] = nullptr, [25] = nullptr, [26] = nullptr, [27] = nullptr,
-    [28] = nullptr, [29] = nullptr, [30] = nullptr, [31] = nullptr,
-    [' ']  = charBitmap_space,
-    ['0']  = charBitmap_0,
-    ['1']  = charBitmap_1,
-    ['2']  = charBitmap_2,
-    ['3']  = charBitmap_3,
-    ['4']  = charBitmap_4,
-    ['5']  = charBitmap_5,
-    ['6']  = charBitmap_6,
-    ['7']  = charBitmap_7,
-    ['8']  = charBitmap_8,
-    ['9']  = charBitmap_9,
-    ['.']  = charBitmap_dot,
-    [',']  = charBitmap_comma,
-    [':']  = charBitmap_colon,
-    [';']  = charBitmap_semicolon,
-    ['!']  = charBitmap_exclamation,
-    ['?']  = charBitmap_question,
-    ['-']  = charBitmap_hyphen,
-    ['_']  = charBitmap_underscore,
-    ['+']  = charBitmap_plus,
-    ['=']  = charBitmap_equal,
-    ['/']  = charBitmap_slash,
-    ['\\'] = charBitmap_backslash,
-    ['(']  = charBitmap_parenLeft,
-    [')']  = charBitmap_parenRight,
-    ['A']  = charBitmap_A,
-    ['B']  = charBitmap_B,
-    ['C']  = charBitmap_C,
-    ['D']  = charBitmap_D,
-    ['E']  = charBitmap_E,
-    ['F']  = charBitmap_F,
-    ['G']  = charBitmap_G,
-    ['H']  = charBitmap_H,
-    ['I']  = charBitmap_I,
-    ['J']  = charBitmap_J,
-    ['K']  = charBitmap_K,
-    ['L']  = charBitmap_L,
-    ['M']  = charBitmap_M,
-    ['N']  = charBitmap_N,
-    ['O']  = charBitmap_O,
-    ['P']  = charBitmap_P,
-    ['Q']  = charBitmap_Q,
-    ['R']  = charBitmap_R,
-    ['S']  = charBitmap_S,
-    ['T']  = charBitmap_T,
-    ['U']  = charBitmap_U,
-    ['V']  = charBitmap_V,
-    ['W']  = charBitmap_W,
-    ['X']  = charBitmap_X,
-    ['Y']  = charBitmap_Y,
-    ['Z']  = charBitmap_Z,
-    ['a']  = charBitmap_a,
-    ['b']  = charBitmap_b,
-    ['c']  = charBitmap_c,
-    ['d']  = charBitmap_d,
-    ['e']  = charBitmap_e,
-    ['f']  = charBitmap_f,
-    ['g']  = charBitmap_g,
-    ['h']  = charBitmap_h,
-    ['i']  = charBitmap_i,
-    ['j']  = charBitmap_j,
-    ['k']  = charBitmap_k,
-    ['l']  = charBitmap_l,
-    ['m']  = charBitmap_m,
-    ['n']  = charBitmap_n,
-    ['o']  = charBitmap_o,
-    ['p']  = charBitmap_p,
-    ['q']  = charBitmap_q,
-    ['r']  = charBitmap_r,
-    ['s']  = charBitmap_s,
-    ['t']  = charBitmap_t,
-    ['u']  = charBitmap_u,
-    ['v']  = charBitmap_v,
-    ['w']  = charBitmap_w,
-    ['x']  = charBitmap_x,
-    ['y']  = charBitmap_y,
-    ['z']  = charBitmap_z,
-    [127] = nullptr,
-};
-
-static const uint8_t charBitmap_space[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_space[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -112,7 +12,7 @@ static const uint8_t charBitmap_space[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_0[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_0[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -124,7 +24,7 @@ static const uint8_t charBitmap_0[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_1[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_1[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00011000,
     0b00111000,
@@ -136,7 +36,7 @@ static const uint8_t charBitmap_1[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_2[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_2[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -148,7 +48,7 @@ static const uint8_t charBitmap_2[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_3[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_3[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -160,7 +60,7 @@ static const uint8_t charBitmap_3[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_4[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_4[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00001100,
     0b00011100,
@@ -172,7 +72,7 @@ static const uint8_t charBitmap_4[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_5[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_5[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111110,
     0b01100000,
@@ -184,7 +84,7 @@ static const uint8_t charBitmap_5[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_6[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_6[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -196,7 +96,7 @@ static const uint8_t charBitmap_6[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_7[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_7[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111110,
     0b00000110,
@@ -208,7 +108,7 @@ static const uint8_t charBitmap_7[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_8[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_8[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -220,7 +120,7 @@ static const uint8_t charBitmap_8[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_9[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_9[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -232,7 +132,7 @@ static const uint8_t charBitmap_9[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_A[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_A[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00011000,
     0b00111100,
@@ -244,7 +144,7 @@ static const uint8_t charBitmap_A[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_B[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_B[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111100,
     0b01100110,
@@ -256,7 +156,7 @@ static const uint8_t charBitmap_B[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_C[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_C[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -268,7 +168,7 @@ static const uint8_t charBitmap_C[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_D[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_D[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111000,
     0b01101100,
@@ -280,7 +180,7 @@ static const uint8_t charBitmap_D[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_E[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_E[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111110,
     0b01100000,
@@ -292,7 +192,7 @@ static const uint8_t charBitmap_E[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_F[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_F[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111110,
     0b01100000,
@@ -304,7 +204,7 @@ static const uint8_t charBitmap_F[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_G[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_G[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -316,7 +216,7 @@ static const uint8_t charBitmap_G[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_H[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_H[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100110,
     0b01100110,
@@ -328,7 +228,7 @@ static const uint8_t charBitmap_H[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_I[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_I[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111110,
     0b00011000,
@@ -340,7 +240,7 @@ static const uint8_t charBitmap_I[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_J[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_J[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00011110,
     0b00001100,
@@ -352,7 +252,7 @@ static const uint8_t charBitmap_J[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_K[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_K[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100110,
     0b01101100,
@@ -364,7 +264,7 @@ static const uint8_t charBitmap_K[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_L[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_L[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100000,
     0b01100000,
@@ -376,7 +276,7 @@ static const uint8_t charBitmap_L[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_M[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_M[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100011,
     0b01110111,
@@ -388,7 +288,7 @@ static const uint8_t charBitmap_M[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_N[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_N[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100110,
     0b01110110,
@@ -400,7 +300,7 @@ static const uint8_t charBitmap_N[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_O[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_O[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -412,7 +312,7 @@ static const uint8_t charBitmap_O[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_P[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_P[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111100,
     0b01100110,
@@ -424,7 +324,7 @@ static const uint8_t charBitmap_P[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_Q[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_Q[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -436,7 +336,7 @@ static const uint8_t charBitmap_Q[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_R[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_R[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111100,
     0b01100110,
@@ -448,7 +348,7 @@ static const uint8_t charBitmap_R[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_S[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_S[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -460,7 +360,7 @@ static const uint8_t charBitmap_S[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_T[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_T[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111110,
     0b01011010,
@@ -472,7 +372,7 @@ static const uint8_t charBitmap_T[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_U[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_U[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100110,
     0b01100110,
@@ -484,7 +384,7 @@ static const uint8_t charBitmap_U[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_V[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_V[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100110,
     0b01100110,
@@ -496,7 +396,7 @@ static const uint8_t charBitmap_V[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_W[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_W[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100011,
     0b01100011,
@@ -508,7 +408,7 @@ static const uint8_t charBitmap_W[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_X[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_X[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100110,
     0b01100110,
@@ -520,7 +420,7 @@ static const uint8_t charBitmap_X[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_Y[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_Y[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100110,
     0b01100110,
@@ -532,7 +432,7 @@ static const uint8_t charBitmap_Y[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_Z[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_Z[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01111110,
     0b00000110,
@@ -544,7 +444,7 @@ static const uint8_t charBitmap_Z[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_a[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_a[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -556,7 +456,7 @@ static const uint8_t charBitmap_a[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_b[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_b[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100000,
     0b01100000,
@@ -568,7 +468,7 @@ static const uint8_t charBitmap_b[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_c[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_c[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -580,7 +480,7 @@ static const uint8_t charBitmap_c[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_d[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_d[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000110,
     0b00000110,
@@ -592,7 +492,7 @@ static const uint8_t charBitmap_d[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_e[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_e[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -604,19 +504,19 @@ static const uint8_t charBitmap_e[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_f[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_f[CHARACTOR_BITMAP_HEIGHT] =
 {
-    0b00001100,
-    0b00011110,
-    0b00001100,
-    0b00001100,
-    0b00001100,
-    0b00001100,
-    0b00011110,
+    0b00001110,
+    0b00011011,
+    0b00011000,
+    0b00111100,
+    0b00011000,
+    0b00011000,
+    0b00111100,
     0b00000000,
 };
 
-static const uint8_t charBitmap_g[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_g[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -628,7 +528,7 @@ static const uint8_t charBitmap_g[CHARACTOR_BITMAP_HEIGHT] =
     0b01111100,
 };
 
-static const uint8_t charBitmap_h[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_h[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100000,
     0b01100000,
@@ -640,7 +540,7 @@ static const uint8_t charBitmap_h[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_i[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_i[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00011000,
     0b00000000,
@@ -652,7 +552,7 @@ static const uint8_t charBitmap_i[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_j[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_j[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000110,
     0b00000000,
@@ -664,7 +564,7 @@ static const uint8_t charBitmap_j[CHARACTOR_BITMAP_HEIGHT] =
     0b00111100,
 };
 
-static const uint8_t charBitmap_k[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_k[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100000,
     0b01100000,
@@ -676,7 +576,7 @@ static const uint8_t charBitmap_k[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_l[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_l[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111000,
     0b00011000,
@@ -688,7 +588,7 @@ static const uint8_t charBitmap_l[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_m[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_m[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -700,7 +600,7 @@ static const uint8_t charBitmap_m[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_n[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_n[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -712,7 +612,7 @@ static const uint8_t charBitmap_n[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_o[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_o[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -724,7 +624,7 @@ static const uint8_t charBitmap_o[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_p[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_p[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -736,7 +636,7 @@ static const uint8_t charBitmap_p[CHARACTOR_BITMAP_HEIGHT] =
     0b01100000,
 };
 
-static const uint8_t charBitmap_q[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_q[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -748,7 +648,7 @@ static const uint8_t charBitmap_q[CHARACTOR_BITMAP_HEIGHT] =
     0b00000110,
 };
 
-static const uint8_t charBitmap_r[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_r[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -760,7 +660,7 @@ static const uint8_t charBitmap_r[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_s[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_s[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -772,19 +672,19 @@ static const uint8_t charBitmap_s[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_t[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_t[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00001000,
-    0b00001000,
-    0b00111110,
-    0b00001000,
-    0b00001000,
-    0b00001000,
-    0b00000110,
+    0b00011000,
+    0b01111110,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00001110,
     0b00000000,
 };
 
-static const uint8_t charBitmap_u[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_u[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -796,7 +696,7 @@ static const uint8_t charBitmap_u[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_v[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_v[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -808,7 +708,7 @@ static const uint8_t charBitmap_v[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_w[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_w[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -820,7 +720,7 @@ static const uint8_t charBitmap_w[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_x[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_x[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -832,7 +732,7 @@ static const uint8_t charBitmap_x[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_y[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_y[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -844,7 +744,7 @@ static const uint8_t charBitmap_y[CHARACTOR_BITMAP_HEIGHT] =
     0b00111100,
 };
 
-static const uint8_t charBitmap_z[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_z[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -856,7 +756,7 @@ static const uint8_t charBitmap_z[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_dot[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_dot[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -868,7 +768,7 @@ static const uint8_t charBitmap_dot[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_comma[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_comma[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -880,7 +780,7 @@ static const uint8_t charBitmap_comma[CHARACTOR_BITMAP_HEIGHT] =
     0b00110000,
 };
 
-static const uint8_t charBitmap_colon[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_colon[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00011000,
@@ -892,7 +792,7 @@ static const uint8_t charBitmap_colon[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_semicolon[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_semicolon[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00011000,
@@ -904,7 +804,7 @@ static const uint8_t charBitmap_semicolon[CHARACTOR_BITMAP_HEIGHT] =
     0b00110000,
 };
 
-static const uint8_t charBitmap_exclamation[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_exclamation[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00011000,
     0b00011000,
@@ -916,7 +816,7 @@ static const uint8_t charBitmap_exclamation[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_question[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_question[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00111100,
     0b01100110,
@@ -928,7 +828,7 @@ static const uint8_t charBitmap_question[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_hyphen[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_hyphen[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -940,7 +840,7 @@ static const uint8_t charBitmap_hyphen[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_underscore[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_underscore[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -952,7 +852,7 @@ static const uint8_t charBitmap_underscore[CHARACTOR_BITMAP_HEIGHT] =
     0b11111111,
 };
 
-static const uint8_t charBitmap_plus[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_plus[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00011000,
@@ -964,7 +864,7 @@ static const uint8_t charBitmap_plus[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_equal[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_equal[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000000,
     0b00000000,
@@ -976,7 +876,7 @@ static const uint8_t charBitmap_equal[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_slash[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_slash[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00000110,
     0b00000110,
@@ -988,7 +888,7 @@ static const uint8_t charBitmap_slash[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_backslash[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_backslash[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b01100000,
     0b01100000,
@@ -1000,7 +900,7 @@ static const uint8_t charBitmap_backslash[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_parenLeft[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_parenLeft[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00001100,
     0b00011000,
@@ -1012,7 +912,7 @@ static const uint8_t charBitmap_parenLeft[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t charBitmap_parenRight[CHARACTOR_BITMAP_HEIGHT] =
+static const uint8_t char_bitmap_parenRight[CHARACTOR_BITMAP_HEIGHT] =
 {
     0b00110000,
     0b00011000,
@@ -1023,3 +923,97 @@ static const uint8_t charBitmap_parenRight[CHARACTOR_BITMAP_HEIGHT] =
     0b00110000,
     0b00000000,
 };
+
+static const uint8_t* char_bitmap_table[128] = { nullptr };
+
+static void init_table()
+{
+    static bool initialized = false;
+    if (initialized) return;
+    initialized = true;
+
+    char_bitmap_table['0'] = char_bitmap_0;
+    char_bitmap_table['1'] = char_bitmap_1;
+    char_bitmap_table['2'] = char_bitmap_2;
+    char_bitmap_table['3'] = char_bitmap_3;
+    char_bitmap_table['4'] = char_bitmap_4;
+    char_bitmap_table['5'] = char_bitmap_5;
+    char_bitmap_table['6'] = char_bitmap_6;
+    char_bitmap_table['7'] = char_bitmap_7;
+    char_bitmap_table['8'] = char_bitmap_8;
+    char_bitmap_table['9'] = char_bitmap_9;
+    char_bitmap_table['A'] = char_bitmap_A;
+    char_bitmap_table['B'] = char_bitmap_B;
+    char_bitmap_table['C'] = char_bitmap_C;
+    char_bitmap_table['D'] = char_bitmap_D;
+    char_bitmap_table['E'] = char_bitmap_E;
+    char_bitmap_table['F'] = char_bitmap_F;
+    char_bitmap_table['G'] = char_bitmap_G;
+    char_bitmap_table['H'] = char_bitmap_H;
+    char_bitmap_table['I'] = char_bitmap_I;
+    char_bitmap_table['J'] = char_bitmap_J;
+    char_bitmap_table['K'] = char_bitmap_K;
+    char_bitmap_table['L'] = char_bitmap_L;
+    char_bitmap_table['M'] = char_bitmap_M;
+    char_bitmap_table['N'] = char_bitmap_N;
+    char_bitmap_table['O'] = char_bitmap_O;
+    char_bitmap_table['P'] = char_bitmap_P;
+    char_bitmap_table['Q'] = char_bitmap_Q;
+    char_bitmap_table['R'] = char_bitmap_R;
+    char_bitmap_table['S'] = char_bitmap_S;
+    char_bitmap_table['T'] = char_bitmap_T;
+    char_bitmap_table['U'] = char_bitmap_U;
+    char_bitmap_table['V'] = char_bitmap_V;
+    char_bitmap_table['W'] = char_bitmap_W;
+    char_bitmap_table['X'] = char_bitmap_X;
+    char_bitmap_table['Y'] = char_bitmap_Y;
+    char_bitmap_table['Z'] = char_bitmap_Z;
+    char_bitmap_table['a'] = char_bitmap_a;
+    char_bitmap_table['b'] = char_bitmap_b;
+    char_bitmap_table['c'] = char_bitmap_c;
+    char_bitmap_table['d'] = char_bitmap_d;
+    char_bitmap_table['e'] = char_bitmap_e;
+    char_bitmap_table['f'] = char_bitmap_f;
+    char_bitmap_table['g'] = char_bitmap_g;
+    char_bitmap_table['h'] = char_bitmap_h;
+    char_bitmap_table['i'] = char_bitmap_i;
+    char_bitmap_table['j'] = char_bitmap_j;
+    char_bitmap_table['k'] = char_bitmap_k;
+    char_bitmap_table['l'] = char_bitmap_l;
+    char_bitmap_table['m'] = char_bitmap_m;
+    char_bitmap_table['n'] = char_bitmap_n;
+    char_bitmap_table['o'] = char_bitmap_o;
+    char_bitmap_table['p'] = char_bitmap_p;
+    char_bitmap_table['q'] = char_bitmap_q;
+    char_bitmap_table['r'] = char_bitmap_r;
+    char_bitmap_table['s'] = char_bitmap_s;
+    char_bitmap_table['t'] = char_bitmap_t;
+    char_bitmap_table['u'] = char_bitmap_u;
+    char_bitmap_table['v'] = char_bitmap_v;
+    char_bitmap_table['w'] = char_bitmap_w;
+    char_bitmap_table['x'] = char_bitmap_x;
+    char_bitmap_table['y'] = char_bitmap_y;
+    char_bitmap_table['z'] = char_bitmap_z;
+    char_bitmap_table['.'] = char_bitmap_dot;
+    char_bitmap_table[','] = char_bitmap_comma;
+    char_bitmap_table[':'] = char_bitmap_colon;
+    char_bitmap_table[';'] = char_bitmap_semicolon;
+    char_bitmap_table['!'] = char_bitmap_exclamation;
+    char_bitmap_table['?'] = char_bitmap_question;
+    char_bitmap_table['-'] = char_bitmap_hyphen;
+    char_bitmap_table['_'] = char_bitmap_underscore;
+    char_bitmap_table['+'] = char_bitmap_plus;
+    char_bitmap_table['='] = char_bitmap_equal;
+    char_bitmap_table['/'] = char_bitmap_slash;
+    char_bitmap_table['\\'] = char_bitmap_backslash;
+    char_bitmap_table['('] = char_bitmap_parenLeft;
+    char_bitmap_table[')'] = char_bitmap_parenRight;
+}
+
+const uint8_t* get_char_bitmap(char c)
+{
+    init_table();
+    unsigned char uc = static_cast<unsigned char>(c);
+    if (uc < 128) return char_bitmap_table[uc];
+    return nullptr;
+}
