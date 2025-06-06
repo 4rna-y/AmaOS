@@ -5,10 +5,9 @@ SRCDIR   := src
 ROOTSRC  := KernelMain.cpp
 
 CXX = clang++
-CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -std=gnu++17 -nostdlib -fno-exceptions -fno-rtti -I. -I./include
+CXXFLAGS = -ffreestanding -O2 -Wall -Wextra -std=gnu++17 -nostdlib -fno-exceptions -fno-rtti -I. -I./include/kernel -I./include/common
 
 SRC_CPP := $(shell find $(SRCDIR) -name '*.cpp')
-SRC_CPP += $(ROOTSRC)
 
 OBJS := $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRC_CPP:$(SRCDIR)/%=%))
 
