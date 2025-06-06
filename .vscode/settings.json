@@ -5,6 +5,12 @@
         "memoryallocationlib.h": "c",
         "simplefilesystem.h": "c",
         "uefilib.h": "c",
-        "loaderbootinfo.h": "c"
+        "loaderbootinfo.h": "c",
+        "array": "cpp",
+        "compare": "cpp",
+        "functional": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp"
     }
 }

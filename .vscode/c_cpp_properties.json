@@ -12,7 +12,9 @@
                 "/home/rg/repos/edk2/MdePkg/Library/UefiLib",
                 "/home/rg/repos/edk2/MdePkg/Include/Protocol",
                 "/home/rg/repos/edk2/MdePkg/Include/Guid",
-                "${workspaceFolder}/Kernel/include/memory"
+                "${workspaceFolder}/Kernel/include/",
+                "${workspaceFolder}/Kernel/include/kernel",
+                "${workspaceFolder}/Kernel/include/common"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
