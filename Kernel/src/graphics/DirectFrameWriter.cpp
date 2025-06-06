@@ -95,3 +95,8 @@ KERNEL_STATUS k_dfw_draw_box(POINT point, SIZE size, COLOR color)
 
     return KERNEL_SUCCESS;
 }
+
+KERNEL_STATUS k_dfw_draw_str_f(POINT point, float scale, COLOR color, const char* fmt, ...)
+{
+    
+}

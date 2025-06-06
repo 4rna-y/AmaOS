@@ -33,6 +33,5 @@ extern "C" void k_main(LOADER_BOOT_INFO* bootInfo)
     k_dfw_draw_pixel({ 100, 100 }, { 255, 255, 255 });
 
     for (;;) { __asm__ volatile("hlt"); }
-    
 }
 
