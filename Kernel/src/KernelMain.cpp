@@ -30,7 +30,12 @@ extern "C" void k_main(LOADER_BOOT_INFO* bootInfo)
 
     k_dfw_init(&fbi);
     k_dfw_clear();
-    k_dfw_draw_pixel({ 100, 100 }, { 255, 255, 255 });
+    k_dfw_draw_string_f({0, 10}, 1.0f, {255, 255, 255}, "Hello world from Kernel!!");
+    k_dfw_draw_string_f({0, 25}, 1.0f, {255, 255, 255}, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,:;!?-=+=/\\()");
+    k_dfw_draw_string_f({0, 40}, 2.0f, {20, 255, 20}, "scaleable and full color");
+    k_dfw_draw_string_f({0, 60}, 1.0f, {255, 0, 0}, "int  format : %d", -123456);
+    k_dfw_draw_string_f({0, 75}, 1.0f, {255, 0, 0}, "uint format : %u", 987);
+    k_dfw_draw_string_f({0, 90}, 1.0f, {255, 0, 0}, "hex  format : 0x%x", 65535);
 
     for (;;) { __asm__ volatile("hlt"); }
 }
