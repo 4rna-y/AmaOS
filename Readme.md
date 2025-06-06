@@ -6,4 +6,4 @@
 
 <br/>
 
-![Preview20250607](https://github.com/4rna-y/AmaOS/imgs/preview_20250607.png)
+![Preview20250607](https://raw.githubusercontent.com/4rna-y/AmaOS/refs/heads/main/imgs/preview_20250607.png)
