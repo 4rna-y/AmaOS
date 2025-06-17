@@ -1,22 +1,21 @@
 .intel_syntax noprefix
-.global cpu_lgdt
+.section .text
+.global cpu_lgdt, cpu_lidt, cpu_load_tss_m16, cpu_far_switch, cpu_reset_tr
+
 cpu_lgdt:
     lgdt [rdi]
     ret
 
-.global cpu_lidt
 cpu_lidt:
     lidt [rdi]
     ret
 
-.global cpu_load_tss_m16
 cpu_load_tss_m16:
-    mov [rip + tss_sel], di
+    mov word ptr [rip + tss_sel], di
     ltr word ptr [rip + tss_sel]
     ret
 tss_sel: .word 0
 
-.global cpu_far_switch
 cpu_far_switch:
     push 0x08
     lea rax, [rip + 1f]

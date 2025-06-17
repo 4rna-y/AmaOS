@@ -27,7 +27,7 @@ fi
 MNT=$(mktemp -d)
 sudo mount "${LOOP}p1" "$MNT"
 sudo mkdir -p "$MNT/EFI/BOOT" "$MNT/amaos"
-sudo cp ~/repos/edk2/Build/Loader/DEBUG_GCC5/X64/Loader.efi \
+sudo cp ~/repos/edk2/Build/Loader/RELEASE_GCC5/X64/Loader.efi \
         "$MNT/EFI/BOOT/BOOTX64.EFI"
 sudo cp ~/repos/osdev/Kernel/build/kernel.elf \
         "$MNT/amaos/kernel.elf"

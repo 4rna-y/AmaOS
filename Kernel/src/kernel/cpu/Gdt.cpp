@@ -27,16 +27,15 @@ static constexpr u64 create_data_desc()
         /* G=1 L=0 D=0  */  (1ULL << 55);  
 }
 
-static u64 create_tss_desc_low(u64 base, u32 limit)
+static u64 create_tss_desc_low(u64 base)
 {
-    u64 d = 0;
-    d |= (u64)(limit & 0xFFFF)       << 0;   
-    d |= (u64)(base  & 0xFFFF)       << 16;  
-    d |= (u64)((base >> 16) & 0xFF)  << 32; 
-    d |=               0x89ULL       << 40; 
-    d |= (1ULL << 47);                        
-    d |= (u64)((limit >> 16) & 0xF)  << 48; 
-    return d;
+    uint32_t lim = sizeof(TSS64) - 1;
+    return   ((uint64_t)lim & 0xFFFF)          |
+            ((uint64_t)base & 0xFFFF) << 16    |
+            ((uint64_t)(base>>16)&0xFF) << 32  |
+            (0x89ULL              ) << 40      | 
+            ((uint64_t)lim>>16 &0xF)<<48       |
+            (1ULL<<55); 
 }
 
 static u64 create_tss_desc_high(u64 base)
@@ -51,14 +50,14 @@ namespace gdt
         g_gdt[0] = 0;
         g_gdt[1] = create_code_desc();
         g_gdt[2] = create_data_desc();
-        g_gdt[3] = create_tss_desc_low(reinterpret_cast<u64>(&g_tss), sizeof(TSS64) - 1);
+        g_gdt[3] = create_tss_desc_low(reinterpret_cast<u64>(&g_tss));
         g_gdt[4] = create_tss_desc_high(reinterpret_cast<u64>(&g_tss));
         g_gdt[5] = create_code_desc();
         g_gdt[6] = create_data_desc();
         g_ptr.limit = sizeof(g_gdt) - 1;
         g_ptr.base = reinterpret_cast<u64>(g_gdt); 
 
-        //debug::print(g_gdt[1], true);
+        //debug::print((u64)(g_gdt), true);
     }
 
     const GDT_POINTER* ptr() { return &g_ptr; }

@@ -45,44 +45,35 @@ KERNEL_STATUS init()
     cpu::init_bsp();
 
     KERNEL_STATUS dfwStatus = dfw::init(g_boot_info);
-    if (dfwStatus == KERNEL_FAILURE) return KERNEL_FAILURE;
+    if (dfwStatus == KERNEL_FAILURE) 
+    {
+        debug::print("[KernelMain::init] Failed to init dfw\n");
+        return KERNEL_FAILURE;
+    }    
     
+    debug::print("[KernelMain::init] dfw initialized.\n");
+
     dfw::clear();
-    uint64_t yOffsetMagn = 1;
-
-    dfw::draw_string_f({0, 14 * yOffsetMagn++}, { 1.0f, 1.2f }, { 255, 255, 255 }, "inited dfw.");
-
-    dfw::draw_string_f({0, 14 * yOffsetMagn++}, { 1.0f, 1.2f }, { 255, 255, 255 }, "%x", g_boot_info->frameBufferBase);
     
     KERNEL_STATUS ppaStatus = ppa::init(g_boot_info);
     if (ppaStatus == KERNEL_FAILURE)
     {
-        dfw::draw_string_f({0, 14 * yOffsetMagn++}, { 1.0f, 1.2f }, { 255, 255, 255 }, "failed to init ppa");
+        debug::print("[KernelMain::init] Failed to init ppa\n");
         return KERNEL_FAILURE;
     }
-    dfw::draw_string_f({0, 14 * yOffsetMagn++}, { 1.0f, 1.2f }, { 255, 255, 255 }, "inited ppa.");
+
+    debug::print("[KernelMain::init] dfw initialized.\n");
 
     KERNEL_STATUS vmmStatus = vmm::init(g_boot_info);
     if (vmmStatus == KERNEL_FAILURE)
     {
-        dfw::draw_string_f({0, 14 * yOffsetMagn++}, { 1.0f, 1.2f }, { 255, 255, 255 }, "failed to init vmm");
+        debug::print("[KernelMain::init] Failed to init vmm\n");
         return KERNEL_FAILURE;
     }
 
+    debug::print("[KernelMain::init] dfw initialized.\n");
+
     dfw::switchHigherHalf();
-    dfw::draw_string_f({0, 14 * yOffsetMagn++}, { 1.0f, 1.2f }, { 255, 255, 255 }, "%x", g_boot_info->frameBufferBase);
-
-    dfw::draw_string_f({0, 14 * yOffsetMagn++}, { 1.0f, 1.2f }, { 255, 255, 255 }, "inited gdt.");
-
-    // auto outb = [](u16 port, u8 val)
-    // { 
-    //     __asm__ volatile ("outb %0, %1" :: "a"(val), "Nd"(port)); 
-    // };
-    // outb(0x21, 0xFF);
-    // outb(0xA1, 0xFF);
-    __asm__ volatile("sti");
-
-    dfw::draw_string_f({0, 14 * yOffsetMagn++}, { 1.0f, 1.2f }, { 255, 255, 255 }, "inited vmm.");
     
     //KERNEL_STATUS ahciStatus = ahci::init();
 

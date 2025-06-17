@@ -10,4 +10,4 @@ make -C BaseTools
 
 cd /home/rg/repos/osdev
 
-build -a X64 -t GCC5 -b DEBUG -p LoaderPkg/LoaderPkg.dsc
+build -a X64 -t GCC5 -b RELEASE -p LoaderPkg/LoaderPkg.dsc

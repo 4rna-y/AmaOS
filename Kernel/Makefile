@@ -11,7 +11,7 @@ COMMON   := -target $(TARGET) -ffreestanding -nostdlib \
             -m64 -mcmodel=kernel -mno-red-zone          
 
 CXXFLAGS := $(COMMON) -O2 -Wall -Wextra -std=gnu++20 \
-            -fno-exceptions -fno-rtti \
+            -fno-exceptions -fno-rtti -fPIE -mcmodel=kernel \
             -I. -I./include/kernel -I./include/common
 
 ASFLAGS  := $(COMMON) -x assembler-with-cpp
@@ -28,7 +28,7 @@ OBJS     := $(OBJS_CPP) $(OBJS_S)
 all: kernel.elf
 
 kernel.elf: $(OBJS) linker.ld
-	$(LD) -T linker.ld --no-relax -o $@ $(OBJS)
+	$(LD) -T linker.ld -pie --no-relax -o $@ $(OBJS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(dir $@)
