@@ -17,6 +17,9 @@
 
 #define PAGE_SIZE   4096ULL
 
+#define R_X86_64_RELATIVE 8
+#define R_X86_64_64 1
+
 #define BITMAP_SET(b, idx)   ((b)[(idx) >> 3] |=  (1U << ((idx) & 7)))
 #define BITMAP_CLR(b, idx)   ((b)[(idx) >> 3] &= ~(1U << ((idx) & 7)))
 
@@ -31,6 +34,7 @@ EFI_STATUS LoadKernelElf(
     EFI_STATUS status;
     Elf64_Ehdr *ehdr = elfBuffer;
     Elf64_Phdr *phdr = (VOID*)((UINT8*)elfBuffer + ehdr->e_phoff);
+
     UINT64 originalBase = UINT64_MAX;
     UINT64 highestEnd = 0;
     UINTN totalPages = 0;
@@ -41,7 +45,7 @@ EFI_STATUS LoadKernelElf(
     int ei3 = ehdr->e_ident[EI_MAG3] != ELFMAG3;
     int eic = ehdr->e_ident[EI_CLASS] != ELFCLASS64;
     int eid = ehdr->e_ident[EI_DATA] != ELFDATA2LSB;
-    int et  = ehdr->e_type != ET_EXEC;
+    int et  = !(ehdr->e_type == ET_EXEC || ehdr->e_type == ET_DYN);
     int em  = ehdr->e_machine != EM_X86_64;
 
     if (ei0 || ei1 || ei2 || ei3 || eic || eid || et || em) return EFI_UNSUPPORTED;
@@ -49,13 +53,10 @@ EFI_STATUS LoadKernelElf(
     for (UINTN i = 0; i < ehdr->e_phnum; i++) 
     {
         if (phdr[i].p_type != PT_LOAD) continue;
-        if (phdr[i].p_paddr < originalBase)
-        {
-            originalBase = phdr[i].p_paddr;
-        }
-
-        UINT64 end = phdr[i].p_paddr + phdr[i].p_memsz;
-        if (end > highestEnd) highestEnd = end;
+        UINT64 vstart = phdr[i].p_vaddr;
+        UINT64 vend = phdr[i].p_vaddr + phdr[i].p_memsz;
+        if (vstart < originalBase) originalBase = vstart;
+        if (vend > highestEnd) highestEnd = vend;
     }
 
     if (originalBase == UINT64_MAX) return EFI_INVALID_PARAMETER;
@@ -64,8 +65,8 @@ EFI_STATUS LoadKernelElf(
     for (UINTN i = 0; i < ehdr->e_phnum; i++) 
     {
         if (phdr[i].p_type != PT_LOAD) continue;
-        UINT64 start = phdr[i].p_paddr & ~(EFI_PAGE_SIZE - 1);
-        UINT64 end = (phdr[i].p_paddr + phdr[i].p_memsz + EFI_PAGE_SIZE - 1) & ~(EFI_PAGE_SIZE - 1);
+        UINT64 start = phdr[i].p_vaddr & ~(EFI_PAGE_SIZE - 1);
+        UINT64 end = (phdr[i].p_vaddr + phdr[i].p_memsz + EFI_PAGE_SIZE - 1) & ~(EFI_PAGE_SIZE - 1);
 
         totalPages += (UINTN)((end - start) / EFI_PAGE_SIZE);
     }
@@ -77,16 +78,64 @@ EFI_STATUS LoadKernelElf(
     for (UINTN i = 0; i < ehdr->e_phnum; i++)
     {
         if (phdr[i].p_type != PT_LOAD) continue;
-        UINT64 offset = phdr[i].p_paddr - originalBase;
+        UINT64 offset = phdr[i].p_vaddr - originalBase;
         UINT8* dest = (UINT8*)(UINTN)(loadBase + offset);
 
         CopyMem(dest, (UINT8*)elfBuffer + phdr[i].p_offset, phdr[i].p_filesz);
         SetMem(dest + phdr[i].p_filesz, phdr[i].p_memsz - phdr[i].p_filesz, 0);
     }
 
+    Elf64_Dyn* dyn = NULL;
+    for (UINTN i = 0; i < ehdr->e_phnum; i++)
+    {
+        if (phdr[i].p_type == PT_DYNAMIC)
+        {
+            dyn = (Elf64_Dyn*)(UINTN)(loadBase + phdr[i].p_vaddr);
+            break;
+        }
+    }
+
+    if (dyn)
+    {
+        Elf64_Rela* rela = NULL;
+        UINTN rela_count = 0;
+
+        for (Elf64_Dyn* d = dyn; d->d_tag != DT_NULL; d++)
+        {
+            if (d->d_tag == DT_RELA)
+            {
+                rela = (Elf64_Rela*)(UINTN)(loadBase + d->d_un.d_ptr);
+            }
+            else
+            if (d->d_tag == DT_RELASZ)
+            {
+                rela_count = d->d_un.d_val / sizeof(Elf64_Rela);
+            }
+        }
+
+        for (UINTN i = 0; i < rela_count; i++)
+        {
+            Elf64_Rela* r = &rela[i];
+            UINT64* where = (UINT64*)(UINTN)(loadBase + r->r_offset);
+            UINT32 type = ELF64_R_TYPE(r->r_info);
+            
+            switch (type)
+            {
+                case R_X86_64_RELATIVE:
+                    *where = loadBase + r->r_addend;
+                    break;
+                case R_X86_64_64:
+                    *where = loadBase + r->r_addend;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     *kernelBase = loadBase;
     *kernelBaseSize = highestEnd - originalBase;
-    *entryPoint = (VOID*)(UINTN)((ehdr->e_entry - originalBase) + loadBase);
+    *entryPoint = (VOID*)(UINTN)(loadBase + ehdr->e_entry);
 
     return EFI_SUCCESS;
 }
