@@ -1,325 +1,277 @@
 #include "driver/Ahci.h"
 
 #include <stdint.h>
+#include <stddef.h>
 #include "driver/Pci.h"
 #include "memory/PhysicalPageAllocator.h"
 
-#define HBA_CAP       0x00
-#define HBA_GHC       0x04
-#define HBA_IS        0x08
-#define HBA_PI        0x0C
-#define HBA_VS        0x10
-#define HBA_CCC_CTL   0x14
-#define HBA_CCC_PORTS 0x18
+#define HBA_GHC   0x04
+#define HBA_PI    0x0C
 
-#define PORT_CLB      0x00
-#define PORT_FB       0x08
-#define PORT_IS       0x10
-#define PORT_CMD      0x18
-#define PORT_TFD      0x20
-#define PORT_SIG      0x24
-#define PORT_SSTS     0x28
-#define PORT_SCTL     0x2C
-#define PORT_SERR     0x30
-#define PORT_SACT     0x34
-#define PORT_CI       0x38
+#define PORT_CLB  0x00
+#define PORT_FB   0x08
+#define PORT_IS   0x10
+#define PORT_CMD  0x18
+#define PORT_TFD  0x20
+#define PORT_SSTS 0x28
+#define PORT_SERR 0x30
+#define PORT_CI   0x38
+
+#define CMD_ST   (1u << 0)
+#define CMD_FRE  (1u << 4)
+#define CMD_FR   (1u << 14)
+#define CMD_CR   (1u << 15)
+#define TFD_BSY  (1u << 7)
+#define TFD_DRQ  (1u << 3)
+#define IS_ERR_MASK 0x400000FFu 
 
 typedef struct 
 {
-    uint16_t cfl : 5;
-    uint16_t a : 1;
-    uint16_t w : 1;
-    uint16_t p : 1;
-    uint16_t r : 1;
-    uint16_t b : 1;
-    uint16_t c : 1;
-    uint16_t reserved0 : 1;
-    uint16_t pmp : 4;
-    uint16_t prdtl;      
-
-    volatile uint32_t prdbc;
-
-    uint32_t ctba; 
-    uint32_t ctbau;
-
-    uint32_t reserved1[4];
+    u16 cfl : 5;
+    u16 a   : 1;
+    u16 w   : 1;
+    u16 p   : 1;
+    u16 r   : 1;
+    u16 b   : 1;
+    u16 c   : 1;
+    u16 rsv : 1;
+    u16 pmp : 4;
+    u16 prdtl;
+    volatile u32 prdbc;
+    u32 ctba;
+    u32 ctbau;
+    u32 rsv1[4];
 } HBA_CMD_HEADER;
 
 typedef struct 
 {
-    uint32_t dba;    
-    uint32_t dbau;   
-    uint32_t reserved0;
-    uint32_t dbc_ioc;
+    u32 dba;
+    u32 dbau;
+    u32 rsv0;
+    u32 dbc_ioc;
 } HBA_PRDT_ENTRY;
 
 typedef struct 
 {
-    uint8_t  cfis[64];
-    uint8_t  reserved[192];
+    u8  cfis[64];
+    u8  rsv[192];
     HBA_PRDT_ENTRY prdt_entry[1];
 } HBA_CMD_TBL;
 
 typedef struct 
 {
-    uint8_t fis_type;  
-    uint8_t pmport : 4;
-    uint8_t rsv0 : 3;
-    uint8_t c : 1;
-    uint8_t command;   
-    uint8_t featurel;  
-    uint8_t lba0;      
-    uint8_t lba1;      
-    uint8_t lba2;      
-    uint8_t device;    
-    uint8_t lba3;      
-    uint8_t lba4;      
-    uint8_t lba5;      
-    uint8_t featureh;  
-    uint8_t countl;    
-    uint8_t counth;    
-    uint8_t icc;       
-    uint8_t control;   
-    uint8_t rsv1[4];   
+    u8 fis_type;
+    u8 pmport : 4;
+    u8 rsv0   : 3;
+    u8 c      : 1;
+    u8 command;
+    u8 featurel;
+    u8 lba0;
+    u8 lba1;
+    u8 lba2;
+    u8 device;
+    u8 lba3;
+    u8 lba4;
+    u8 lba5;
+    u8 featureh;
+    u8 countl;
+    u8 counth;
+    u8 icc;
+    u8 control;
+    u8 rsv1[4];
 } FIS_REG_H2D;
 
-static volatile uint8_t* g_hba = nullptr;
-static int g_port_index = -1;
-static uint64_t g_port_clb_phys = 0;
-static uint64_t g_port_fb_phys = 0;
-
-static inline uint32_t hba_read32(uint32_t offset)
+namespace ahci 
 {
-    return *(volatile uint32_t*)(g_hba + offset);
-}
+    static volatile u8* g_hba = nullptr;
+    static int g_port        = -1;
+    static u64 g_clb_phys    = 0; 
+    static u64 g_fb_phys     = 0;
+    static u64 g_ctba_phys   = 0;
 
-static inline void hba_write32(uint32_t offset, uint32_t value)
-{
-    *(volatile uint32_t*)(g_hba + offset) = value;
-}
-
-static inline void hba_write32_mask(uint32_t offset, uint32_t mask, uint32_t value)
-{
-    uint32_t original = *(volatile uint32_t*)(g_hba + offset);
-    original &= ~mask;
-    original |= (value & mask);
-    *(volatile uint32_t*)(g_hba + offset) = original;
-}
-
-static inline uint32_t port_read32(int port, uint32_t offset)
-{
-    return *(volatile uint32_t*)(g_hba + 0x100 + (port * 0x80) + offset);
-}
-
-static inline void port_write32(int port, uint32_t offset, uint32_t value) 
-{
-    *(volatile uint32_t*)(g_hba + 0x100 + (port * 0x80) + offset) = value;
-}
-
-static inline void port_write32_mask(int port, uint32_t offset, uint32_t mask, uint32_t value) 
-{
-    uint8_t* base = (uint8_t*)g_hba + 0x100 + (port * 0x80) + offset;
-    uint32_t original = *(volatile uint32_t*)base;
-    original &= ~mask;
-    original |= (value & mask);
-    *(volatile uint32_t*)base = original;
-}
-
-KERNEL_STATUS k_ahci_init()
-{
-    volatile uint8_t* base = k_find_ahci_hba_base();
-    if (base == nullptr) return KERNEL_FAILURE;
-    g_hba = base;
-
-    uint32_t ghc = hba_read32(HBA_GHC);
-    ghc |= (1u << 31);
-    hba_write32(HBA_GHC, ghc);
-
-    uint32_t pi = hba_read32(HBA_PI);
-    if (pi == 0) return KERNEL_FAILURE;
-
-    int selected = -1;
-    for (int port = 0; port < 32; ++port)
+    static inline u32 hba_rd32(u32 off) 
     {
-        if (pi & (1u << port))
+        return *(volatile u32*)(g_hba + off);
+    }
+
+    static inline void hba_wr32(u32 off, u32 v) 
+    {
+        *(volatile u32*)(g_hba + off) = v;
+    }
+
+    static inline u32 prd32(int port, u32 off) 
+    {
+        return *(volatile u32*)(g_hba + 0x100 + port * 0x80 + off);
+    }
+
+    static inline void pw32(int port, u32 off, u32 v) 
+    {
+        *(volatile u32*)(g_hba + 0x100 + port * 0x80 + off) = v;
+    }
+
+    static inline void pw32_mask(int port, u32 off, u32 m, u32 v) 
+    {
+        volatile u32* p = (volatile u32*)(g_hba + 0x100 + port * 0x80 + off);
+        u32 o = *p;  
+        o = (o & ~m) | (v & m);  
+        *p = o;
+    }
+
+    static inline void io_delay() 
+    { 
+        asm volatile(
+            "" 
+            :
+            :
+            : "memory"
+        ); 
+    }
+
+    static bool wait_ready() 
+    {
+        for (u32 i = 0; i < 1000000; ++i) 
         {
-            uint32_t ssts = port_read32(port, PORT_SSTS);
-            uint8_t det = (uint8_t)(ssts & 0xF);
-            uint8_t ipm = (uint8_t)((ssts >> 8) & 0xF);
-            if (det == 0x3 && ipm == 0x1)
+            if ((prd32(g_port, PORT_TFD) & (TFD_BSY|TFD_DRQ)) == 0) return true;
+            io_delay();
+        }
+
+        return false;
+    }
+
+    static bool wait_complete() 
+    {
+        for (u32 i = 0; i < 2000000; ++i) 
+        {
+            u32 is  = prd32(g_port, PORT_IS);
+            u32 ci  = prd32(g_port, PORT_CI);
+
+            if (is & IS_ERR_MASK) return false;
+            if ((ci & 1u) == 0) return true;
+
+            io_delay();
+        }
+
+        return false;
+    }
+
+    KERNEL_STATUS init()
+    {
+        g_hba = pci::find_ahci_hba_base();
+        if (!g_hba) return KERNEL_FAILURE;
+
+        hba_wr32(HBA_GHC, hba_rd32(HBA_GHC) | (1u<<31));
+
+        u32 pi = hba_rd32(HBA_PI);
+        for (int p = 0; p < 32; ++p)
+        {
+            if (pi & (1u << p)) 
             {
-                selected = port;
-                break;
+                u32 ssts = prd32(p, PORT_SSTS);
+                if ((ssts & 0xF) == 3 && ((ssts >> 8) & 0xF) == 1) 
+                { 
+                    g_port=p; 
+                    break; 
+                }
             }
         }
+
+        if (g_port < 0) return KERNEL_FAILURE;
+
+        g_clb_phys  = (u64)ppa::alloc();
+        g_fb_phys   = (u64)ppa::alloc();
+        g_ctba_phys = (u64)ppa::alloc();
+        if (!g_clb_phys || !g_fb_phys || !g_ctba_phys) 
+            return KERNEL_FAILURE;
+
+        pw32_mask(g_port, PORT_CMD, CMD_ST|CMD_FRE, 0);
+
+        while (prd32(g_port, PORT_CMD) & (CMD_CR|CMD_FR)) io_delay();
+
+        pw32(g_port, PORT_CLB,  (u32)g_clb_phys);
+        pw32(g_port, PORT_CLB + 4,(u32)(g_clb_phys >> 32));
+        pw32(g_port, PORT_FB,   (u32)g_fb_phys);
+        pw32(g_port, PORT_FB + 4, (u32)(g_fb_phys >> 32));
+
+        pw32(g_port, PORT_IS, 0xFFFFFFFF);
+        pw32(g_port, PORT_SERR, 0xFFFFFFFF);
+
+        pw32_mask(g_port, PORT_CMD, CMD_FRE, CMD_FRE);
+        pw32_mask(g_port, PORT_CMD, CMD_ST,  CMD_ST);
+
+        return wait_ready() ? KERNEL_SUCCESS : KERNEL_FAILURE;
     }
 
-    if (selected < 0) return KERNEL_FAILURE;
-    g_port_index = selected;
-
-    g_port_clb_phys = (uint64_t)k_ppa_alloc();
-    if (g_port_clb_phys == 0) return KERNEL_FAILURE;
-
-    g_port_fb_phys = (uint64_t)k_ppa_alloc();
-    if (g_port_fb_phys == 0)
+    static KERNEL_STATUS issue(bool write, u64 lba, u32 cnt, void* buf)
     {
-        k_ppa_free((void*)(uintptr_t)g_port_clb_phys);
-        g_port_clb_phys = 0;
-        return KERNEL_FAILURE;
-    }
+        if (!wait_ready()) return KERNEL_FAILURE;
 
-    port_write32(g_port_index, PORT_CLB + 0, (uint32_t)(g_port_clb_phys & 0xFFFFFFFF));
-    port_write32(g_port_index, PORT_CLB + 4, (uint32_t)(g_port_clb_phys >> 32));
-    port_write32(g_port_index, PORT_FB + 0, (uint32_t)(g_port_fb_phys & 0xFFFFFFFF));
-    port_write32(g_port_index, PORT_FB + 4, (uint32_t)(g_port_fb_phys >> 32));
-
-    port_write32_mask(g_port_index, PORT_CMD, (1u << 15) | (1u << 0), 0);
-    port_write32_mask(g_port_index, PORT_CMD, (1u << 14), (1u << 14));
-    port_write32_mask(g_port_index, PORT_CMD, (1u << 0), (1u << 0));
-
-    return KERNEL_SUCCESS;
-}
-
-KERNEL_STATUS k_ahci_read_disk_sectors(uint64_t lba, uint32_t count, void* buffer)
-{
-    if (g_hba == nullptr || g_port_index < 0) return KERNEL_FAILURE;
-    if (count == 0 || buffer == nullptr) return KERNEL_FAILURE;
-    if ((uint64_t)count * 512 > (uint64_t)(4ull * 1024 * 1024)) return KERNEL_FAILURE;
-
-    HBA_CMD_HEADER* cmdHeader = (HBA_CMD_HEADER*)(uintptr_t)g_port_clb_phys;
-    for (long i = 0; i < sizeof(HBA_CMD_HEADER) / 4; ++i)
-    {
-        ((uint32_t*)cmdHeader)[i] = 0;
-    }
-
-    cmdHeader->cfl = sizeof(FIS_REG_H2D) / 4;
-    cmdHeader->prdtl = 1;
-    cmdHeader->w = 0;
-    cmdHeader->p = 1;
-    cmdHeader->a = 0;
-    cmdHeader->c = 0;
-    cmdHeader->b = 0;
-    cmdHeader->pmp = 0;
-
-    HBA_CMD_TBL* cmdTable = (HBA_CMD_TBL*)(uintptr_t)g_port_fb_phys;
-    for (int i = 0; i < 256 / 4; ++i)
-    {
-        ((uint32_t*)cmdTable)[i] = 0;
-    }
-
-    HBA_PRDT_ENTRY* prdt = &cmdTable->prdt_entry[0];
-    uint64_t bufPhys = (uint64_t)buffer;
-    prdt->dba = (uint32_t)(bufPhys & 0xFFFFFFFF);
-    prdt->dbau = (uint32_t)(bufPhys >> 32);
-    prdt->dbc_ioc = ((count * 512) - 1) & 0x3FFFFF;
-    prdt->dbc_ioc |= (1u << 31);
-
-    FIS_REG_H2D* fis = (FIS_REG_H2D*)&cmdTable->cfis[0];
-    for (long i = 0; i < sizeof(FIS_REG_H2D) / 4; ++i)
-    {
-        ((uint32_t*)fis)[i] = 0;
-    }
-
-    fis->fis_type = 0x27;
-    fis->pmport = (1 << 7);
-    fis->command = 0x25;
-    fis->lba0 = (uint8_t)(lba & 0xFF);
-    fis->lba1 = (uint8_t)((lba >> 8) & 0xFF);
-    fis->lba2 = (uint8_t)((lba >> 16) & 0xFF);
-    fis->lba3 = (uint8_t)((lba >> 24) & 0xFF);
-    fis->lba4 = (uint8_t)((lba >> 32) & 0xFF);
-    fis->lba5 = (uint8_t)((lba >> 40) & 0xFF);
-    fis->device = (1 << 6);
-    fis->countl = (uint8_t)(count & 0xFF);
-    fis->counth = (uint8_t)((count >> 8) & 0xFF);
-    
-    cmdHeader->ctba = (uint32_t)(g_port_fb_phys & 0xFFFFFFFF);
-    cmdHeader->ctbau = (uint32_t)(g_port_fb_phys >> 32);
-
-    port_write32_mask(g_port_index, PORT_CI, (1u << 0), (1u << 0));
-
-    for (volatile int t = 0; t < 100000000; ++t) 
-    {
-        uint32_t tfd = port_read32(g_port_index, PORT_TFD);
-        if ((tfd & (1u << 7)) == 0) 
+        HBA_CMD_HEADER* hdr = (HBA_CMD_HEADER*)(uptr)g_clb_phys;
+        for (size_t i = 0; i < sizeof(HBA_CMD_HEADER) / 4; ++i) 
         {
-            if ((port_read32(g_port_index, PORT_CI) & (1u << 0)) == 0) 
-            {
-                return KERNEL_SUCCESS;
-            }
+            ((u32*)hdr)[i] = 0;
         }
-    }
 
-    return KERNEL_FAILURE;
-}
+        hdr->cfl = sizeof(FIS_REG_H2D) / 4;
+        hdr->w   = write;
+        hdr->p   = 0;
+        hdr->prdtl = 1;
+        hdr->ctba  = (u32)g_ctba_phys;
+        hdr->ctbau = (u32)(g_ctba_phys>>32);
+        hdr->prdbc = 0;
 
-KERNEL_STATUS k_ahci_write_disk_sectors(uint64_t lba, uint32_t count, const void* buffer) 
-{
-    if (g_hba == nullptr || g_port_index < 0) return KERNEL_FAILURE;
-    if (count == 0 || buffer == nullptr) return KERNEL_FAILURE;
-    if ((uint64_t)count * 512 > (uint64_t)(4ull * 1024 * 1024)) return KERNEL_FAILURE;
-    
-    volatile uint32_t* port = (volatile uint32_t*)(g_hba + 0x100 + (g_port_index * 0x80));
-
-    HBA_CMD_HEADER* cmdHeader = (HBA_CMD_HEADER*)(uintptr_t)g_port_clb_phys;
-    for (long i = 0; i < sizeof(HBA_CMD_HEADER) / 4; ++i) 
-    {
-        ((uint32_t*)cmdHeader)[i] = 0;
-    }
-    cmdHeader->cfl = sizeof(FIS_REG_H2D) / 4;
-    cmdHeader->prdtl = 1;
-    cmdHeader->w = 1;
-    cmdHeader->p = 1;
-    cmdHeader->a = 0;
-    cmdHeader->c = 0;
-    cmdHeader->b = 0;
-    cmdHeader->pmp = 0;
-
-    HBA_CMD_TBL* cmdTable = (HBA_CMD_TBL*)(uintptr_t)g_port_fb_phys;
-    for (int i = 0; i < 256 / 4; ++i) 
-    {
-        ((uint32_t*)cmdTable)[i] = 0;
-    }
-
-    HBA_PRDT_ENTRY* prdt = &cmdTable->prdt_entry[0];
-    uint64_t buf_phys = (uint64_t)buffer;
-    prdt->dba = (uint32_t)(buf_phys & 0xFFFFFFFF);
-    prdt->dbau = (uint32_t)(buf_phys >> 32);
-    prdt->dbc_ioc = ((count * 512) - 1) & 0x3FFFFF;
-    prdt->dbc_ioc |= (1u << 31);
-
-    FIS_REG_H2D* fis = (FIS_REG_H2D*)&cmdTable->cfis[0];
-    for (long i = 0; i < sizeof(FIS_REG_H2D) / 4; ++i) 
-    {
-        ((uint32_t*)fis)[i] = 0;
-    }
-    fis->fis_type = 0x27;
-    fis->pmport = (1 << 7);
-    fis->command = 0x35;      
-    fis->lba0 = (uint8_t)(lba & 0xFF);
-    fis->lba1 = (uint8_t)((lba >> 8) & 0xFF);
-    fis->lba2 = (uint8_t)((lba >> 16) & 0xFF);
-    fis->device = 1 << 6;
-    fis->lba3 = (uint8_t)((lba >> 24) & 0xFF);
-    fis->lba4 = (uint8_t)((lba >> 32) & 0xFF);
-    fis->lba5 = (uint8_t)((lba >> 40) & 0xFF);
-    fis->countl = (uint8_t)(count & 0xFF);
-    fis->counth = (uint8_t)((count >> 8) & 0xFF);
-
-    cmdHeader->ctba  = (uint32_t)(g_port_fb_phys & 0xFFFFFFFF);
-    cmdHeader->ctbau = (uint32_t)(g_port_fb_phys >> 32);
-
-    port_write32_mask(g_port_index, PORT_CI, (1u << 0), (1u << 0));
-
-    for (volatile int t = 0; t < 100000000; ++t) 
-    {
-        uint32_t tfd = port_read32(g_port_index, PORT_TFD);
-        if ((tfd & (1u << 7)) == 0) 
+        HBA_CMD_TBL* tbl = (HBA_CMD_TBL*)(uptr)g_ctba_phys;
+        for (size_t i = 0; i < (sizeof(HBA_CMD_TBL) +3) / 4; ++i) 
         {
-            if ((port_read32(g_port_index, PORT_CI) & (1u << 0)) == 0) {
-                return KERNEL_SUCCESS;
-            }
-        }
+            ((u32*)tbl)[i] = 0;
+        } 
+
+        u64 phys = (u64)buf;
+        tbl->prdt_entry[0].dba = (u32)phys;
+        tbl->prdt_entry[0].dbau = (u32)(phys >> 32);
+        tbl->prdt_entry[0].dbc_ioc = ((cnt * 512) - 1) | (1u << 31);
+
+        FIS_REG_H2D* fis = (FIS_REG_H2D*)tbl->cfis;
+        fis->fis_type = 0x27;
+        fis->c        = 1;
+        fis->command  = write ? 0x35 : 0x25;
+        fis->device   = 1 << 6;
+        fis->lba0 = (u8) lba;
+        fis->lba1 = (u8)(lba >> 8);    
+        fis->lba2 = (u8)(lba >> 16);
+        fis->lba3 = (u8)(lba >> 24);   
+        fis->lba4 = (u8)(lba >> 32);
+        fis->lba5 = (u8)(lba >> 40);
+        fis->countl = (u8) cnt;
+        fis->counth = (u8)(cnt >> 8);
+
+        while (prd32(g_port, PORT_CI) & 1u) 
+            io_delay();
+        pw32(g_port, PORT_IS, 0xFFFFFFFF);
+        pw32_mask(g_port, PORT_CI, 1u, 1u);
+
+        if (!wait_complete()) return KERNEL_FAILURE;
+        pw32(g_port, PORT_IS, 0xFFFFFFFF);
+        return KERNEL_SUCCESS;
     }
-    return KERNEL_FAILURE;
+
+    KERNEL_STATUS read_disk_sectors(u64 lba, u32 cnt, void* buf)
+    {
+        return issue(false, lba, cnt, buf);
+    }
+    KERNEL_STATUS write_disk_sectors(u64 lba, u32 cnt, const void* buf)
+    {
+        return issue(true, lba, cnt, const_cast<void*>(buf));
+    }
+
+    PortRegs dump_port_regs()
+    {
+        PortRegs r{};
+        r.is   = prd32(g_port, PORT_IS);
+        r.serr = prd32(g_port, PORT_SERR);
+        r.tfd  = prd32(g_port, PORT_TFD);
+        r.ci   = prd32(g_port, PORT_CI);
+        r.cmd  = prd32(g_port, PORT_CMD);
+        r.ssts = prd32(g_port, PORT_SSTS);
+        return r;
+    }
 }

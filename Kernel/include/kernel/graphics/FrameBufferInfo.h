@@ -1,15 +1,14 @@
 #pragma once
 
-#include <stdint.h>
-
+#include "Types.h"
 #include "Size.h"
 
 typedef struct _frame_buffer_info
 {
-    uint8_t* base;
-    uint64_t size;
-    uint32_t pixelsPerScanLine;
-    uint32_t bytesPerPixel;
-    uint8_t isBGR;
+    u8* base;
+    u64 size;
+    u32 pixelsPerScanLine;
+    u32 bytesPerPixel;
+    u8 isBGR;
     SIZE frameSize;
 } FRAME_BUFFER_INFO;

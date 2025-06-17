@@ -924,96 +924,99 @@ static const uint8_t char_bitmap_parenRight[CHARACTOR_BITMAP_HEIGHT] =
     0b00000000,
 };
 
-static const uint8_t* char_bitmap_table[128] = { nullptr };
+const uint8_t* char_bitmap_table[128] = { nullptr };
 
-static void init_table()
+namespace stdcharbmp
 {
-    static bool initialized = false;
-    if (initialized) return;
-    initialized = true;
+    void init() noexcept
+    {
+        static bool initialized = false;
+        if (initialized) return;
+        initialized = true;
 
-    char_bitmap_table['0'] = char_bitmap_0;
-    char_bitmap_table['1'] = char_bitmap_1;
-    char_bitmap_table['2'] = char_bitmap_2;
-    char_bitmap_table['3'] = char_bitmap_3;
-    char_bitmap_table['4'] = char_bitmap_4;
-    char_bitmap_table['5'] = char_bitmap_5;
-    char_bitmap_table['6'] = char_bitmap_6;
-    char_bitmap_table['7'] = char_bitmap_7;
-    char_bitmap_table['8'] = char_bitmap_8;
-    char_bitmap_table['9'] = char_bitmap_9;
-    char_bitmap_table['A'] = char_bitmap_A;
-    char_bitmap_table['B'] = char_bitmap_B;
-    char_bitmap_table['C'] = char_bitmap_C;
-    char_bitmap_table['D'] = char_bitmap_D;
-    char_bitmap_table['E'] = char_bitmap_E;
-    char_bitmap_table['F'] = char_bitmap_F;
-    char_bitmap_table['G'] = char_bitmap_G;
-    char_bitmap_table['H'] = char_bitmap_H;
-    char_bitmap_table['I'] = char_bitmap_I;
-    char_bitmap_table['J'] = char_bitmap_J;
-    char_bitmap_table['K'] = char_bitmap_K;
-    char_bitmap_table['L'] = char_bitmap_L;
-    char_bitmap_table['M'] = char_bitmap_M;
-    char_bitmap_table['N'] = char_bitmap_N;
-    char_bitmap_table['O'] = char_bitmap_O;
-    char_bitmap_table['P'] = char_bitmap_P;
-    char_bitmap_table['Q'] = char_bitmap_Q;
-    char_bitmap_table['R'] = char_bitmap_R;
-    char_bitmap_table['S'] = char_bitmap_S;
-    char_bitmap_table['T'] = char_bitmap_T;
-    char_bitmap_table['U'] = char_bitmap_U;
-    char_bitmap_table['V'] = char_bitmap_V;
-    char_bitmap_table['W'] = char_bitmap_W;
-    char_bitmap_table['X'] = char_bitmap_X;
-    char_bitmap_table['Y'] = char_bitmap_Y;
-    char_bitmap_table['Z'] = char_bitmap_Z;
-    char_bitmap_table['a'] = char_bitmap_a;
-    char_bitmap_table['b'] = char_bitmap_b;
-    char_bitmap_table['c'] = char_bitmap_c;
-    char_bitmap_table['d'] = char_bitmap_d;
-    char_bitmap_table['e'] = char_bitmap_e;
-    char_bitmap_table['f'] = char_bitmap_f;
-    char_bitmap_table['g'] = char_bitmap_g;
-    char_bitmap_table['h'] = char_bitmap_h;
-    char_bitmap_table['i'] = char_bitmap_i;
-    char_bitmap_table['j'] = char_bitmap_j;
-    char_bitmap_table['k'] = char_bitmap_k;
-    char_bitmap_table['l'] = char_bitmap_l;
-    char_bitmap_table['m'] = char_bitmap_m;
-    char_bitmap_table['n'] = char_bitmap_n;
-    char_bitmap_table['o'] = char_bitmap_o;
-    char_bitmap_table['p'] = char_bitmap_p;
-    char_bitmap_table['q'] = char_bitmap_q;
-    char_bitmap_table['r'] = char_bitmap_r;
-    char_bitmap_table['s'] = char_bitmap_s;
-    char_bitmap_table['t'] = char_bitmap_t;
-    char_bitmap_table['u'] = char_bitmap_u;
-    char_bitmap_table['v'] = char_bitmap_v;
-    char_bitmap_table['w'] = char_bitmap_w;
-    char_bitmap_table['x'] = char_bitmap_x;
-    char_bitmap_table['y'] = char_bitmap_y;
-    char_bitmap_table['z'] = char_bitmap_z;
-    char_bitmap_table['.'] = char_bitmap_dot;
-    char_bitmap_table[','] = char_bitmap_comma;
-    char_bitmap_table[':'] = char_bitmap_colon;
-    char_bitmap_table[';'] = char_bitmap_semicolon;
-    char_bitmap_table['!'] = char_bitmap_exclamation;
-    char_bitmap_table['?'] = char_bitmap_question;
-    char_bitmap_table['-'] = char_bitmap_hyphen;
-    char_bitmap_table['_'] = char_bitmap_underscore;
-    char_bitmap_table['+'] = char_bitmap_plus;
-    char_bitmap_table['='] = char_bitmap_equal;
-    char_bitmap_table['/'] = char_bitmap_slash;
-    char_bitmap_table['\\'] = char_bitmap_backslash;
-    char_bitmap_table['('] = char_bitmap_parenLeft;
-    char_bitmap_table[')'] = char_bitmap_parenRight;
-}
+        char_bitmap_table[(unsigned char)' '] = char_bitmap_space;
+        char_bitmap_table[(unsigned char)'0'] = char_bitmap_0;
+        char_bitmap_table[(unsigned char)'1'] = char_bitmap_1;
+        char_bitmap_table[(unsigned char)'2'] = char_bitmap_2;
+        char_bitmap_table[(unsigned char)'3'] = char_bitmap_3;
+        char_bitmap_table[(unsigned char)'4'] = char_bitmap_4;
+        char_bitmap_table[(unsigned char)'5'] = char_bitmap_5;
+        char_bitmap_table[(unsigned char)'6'] = char_bitmap_6;
+        char_bitmap_table[(unsigned char)'7'] = char_bitmap_7;
+        char_bitmap_table[(unsigned char)'8'] = char_bitmap_8;
+        char_bitmap_table[(unsigned char)'9'] = char_bitmap_9;
+        char_bitmap_table[(unsigned char)'A'] = char_bitmap_A;
+        char_bitmap_table[(unsigned char)'B'] = char_bitmap_B;
+        char_bitmap_table[(unsigned char)'C'] = char_bitmap_C;
+        char_bitmap_table[(unsigned char)'D'] = char_bitmap_D;
+        char_bitmap_table[(unsigned char)'E'] = char_bitmap_E;
+        char_bitmap_table[(unsigned char)'F'] = char_bitmap_F;
+        char_bitmap_table[(unsigned char)'G'] = char_bitmap_G;
+        char_bitmap_table[(unsigned char)'H'] = char_bitmap_H;
+        char_bitmap_table[(unsigned char)'I'] = char_bitmap_I;
+        char_bitmap_table[(unsigned char)'J'] = char_bitmap_J;
+        char_bitmap_table[(unsigned char)'K'] = char_bitmap_K;
+        char_bitmap_table[(unsigned char)'L'] = char_bitmap_L;
+        char_bitmap_table[(unsigned char)'M'] = char_bitmap_M;
+        char_bitmap_table[(unsigned char)'N'] = char_bitmap_N;
+        char_bitmap_table[(unsigned char)'O'] = char_bitmap_O;
+        char_bitmap_table[(unsigned char)'P'] = char_bitmap_P;
+        char_bitmap_table[(unsigned char)'Q'] = char_bitmap_Q;
+        char_bitmap_table[(unsigned char)'R'] = char_bitmap_R;
+        char_bitmap_table[(unsigned char)'S'] = char_bitmap_S;
+        char_bitmap_table[(unsigned char)'T'] = char_bitmap_T;
+        char_bitmap_table[(unsigned char)'U'] = char_bitmap_U;
+        char_bitmap_table[(unsigned char)'V'] = char_bitmap_V;
+        char_bitmap_table[(unsigned char)'W'] = char_bitmap_W;
+        char_bitmap_table[(unsigned char)'X'] = char_bitmap_X;
+        char_bitmap_table[(unsigned char)'Y'] = char_bitmap_Y;
+        char_bitmap_table[(unsigned char)'Z'] = char_bitmap_Z;
+        char_bitmap_table[(unsigned char)'a'] = char_bitmap_a;
+        char_bitmap_table[(unsigned char)'b'] = char_bitmap_b;
+        char_bitmap_table[(unsigned char)'c'] = char_bitmap_c;
+        char_bitmap_table[(unsigned char)'d'] = char_bitmap_d;
+        char_bitmap_table[(unsigned char)'e'] = char_bitmap_e;
+        char_bitmap_table[(unsigned char)'f'] = char_bitmap_f;
+        char_bitmap_table[(unsigned char)'g'] = char_bitmap_g;
+        char_bitmap_table[(unsigned char)'h'] = char_bitmap_h;
+        char_bitmap_table[(unsigned char)'i'] = char_bitmap_i;
+        char_bitmap_table[(unsigned char)'j'] = char_bitmap_j;
+        char_bitmap_table[(unsigned char)'k'] = char_bitmap_k;
+        char_bitmap_table[(unsigned char)'l'] = char_bitmap_l;
+        char_bitmap_table[(unsigned char)'m'] = char_bitmap_m;
+        char_bitmap_table[(unsigned char)'n'] = char_bitmap_n;
+        char_bitmap_table[(unsigned char)'o'] = char_bitmap_o;
+        char_bitmap_table[(unsigned char)'p'] = char_bitmap_p;
+        char_bitmap_table[(unsigned char)'q'] = char_bitmap_q;
+        char_bitmap_table[(unsigned char)'r'] = char_bitmap_r;
+        char_bitmap_table[(unsigned char)'s'] = char_bitmap_s;
+        char_bitmap_table[(unsigned char)'t'] = char_bitmap_t;
+        char_bitmap_table[(unsigned char)'u'] = char_bitmap_u;
+        char_bitmap_table[(unsigned char)'v'] = char_bitmap_v;
+        char_bitmap_table[(unsigned char)'w'] = char_bitmap_w;
+        char_bitmap_table[(unsigned char)'x'] = char_bitmap_x;
+        char_bitmap_table[(unsigned char)'y'] = char_bitmap_y;
+        char_bitmap_table[(unsigned char)'z'] = char_bitmap_z;
+        char_bitmap_table[(unsigned char)'.'] = char_bitmap_dot;
+        char_bitmap_table[(unsigned char)','] = char_bitmap_comma;
+        char_bitmap_table[(unsigned char)':'] = char_bitmap_colon;
+        char_bitmap_table[(unsigned char)';'] = char_bitmap_semicolon;
+        char_bitmap_table[(unsigned char)'!'] = char_bitmap_exclamation;
+        char_bitmap_table[(unsigned char)'?'] = char_bitmap_question;
+        char_bitmap_table[(unsigned char)'-'] = char_bitmap_hyphen;
+        char_bitmap_table[(unsigned char)'_'] = char_bitmap_underscore;
+        char_bitmap_table[(unsigned char)'+'] = char_bitmap_plus;
+        char_bitmap_table[(unsigned char)'='] = char_bitmap_equal;
+        char_bitmap_table[(unsigned char)'/'] = char_bitmap_slash;
+        char_bitmap_table[(unsigned char)'\\'] = char_bitmap_backslash;
+        char_bitmap_table[(unsigned char)'('] = char_bitmap_parenLeft;
+        char_bitmap_table[(unsigned char)')'] = char_bitmap_parenRight;
+    }
 
-const uint8_t* get_char_bitmap(char c)
-{
-    init_table();
-    unsigned char uc = static_cast<unsigned char>(c);
-    if (uc < 128) return char_bitmap_table[uc];
-    return nullptr;
+    const uint8_t* get_char_bitmap(char c) noexcept
+    {
+        unsigned char uc = static_cast<unsigned char>(c);
+        if (uc < 128) return char_bitmap_table[uc];
+        return char_bitmap_space;
+    }
 }

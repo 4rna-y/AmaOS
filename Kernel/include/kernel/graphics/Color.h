@@ -1,10 +1,10 @@
 #pragma once
 
-#include <stdint.h>
+#include "Types.h"
 
 typedef struct _color
 {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+    u8 red;
+    u8 green;
+    u8 blue;
 } COLOR;

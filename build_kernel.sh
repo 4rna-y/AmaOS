@@ -1,6 +1,6 @@
 cd ./Kernel
 
 make clean
-make
+make -j
 
 mv kernel.elf ./build/kernel.elf

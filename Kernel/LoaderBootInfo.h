@@ -3,6 +3,39 @@
 
 #include <stdint.h>
 
+enum {
+    LoaderReservedMemoryType,
+    LoaderLoaderCode,
+    LoaderLoaderData,
+    LoaderBootServicesCode,
+    LoaderBootServicesData,
+    LoaderRuntimeServicesCode,
+    LoaderRuntimeServicesData,
+    LoaderConventionalMemory,
+    LoaderUnusableMemory,
+    LoaderACPIReclaimMemory,
+    LoaderACPIMemoryNVS,
+    LoaderMemoryMappedIO,
+    LoaderMemoryMappedIOPortSpace,
+    LoaderPalCode,
+    LoaderPersistentMemory,
+    LoaderUnacceptedMemoryType,
+    LoaderMaxMemoryType
+};
+
+
+#define LOADER_CONVENTIONAL_MEMORY 7U
+
+typedef struct _loader_memory_descriptor
+{
+    uint32_t type;
+    uint64_t physicalStart;
+    uint64_t virtualStart;
+    uint64_t numberOfPages;
+    uint64_t attribute; 
+} LOADER_MEMORY_DESCRIPTOR;
+
+
 typedef struct _loader_boot_info
 {
     uint64_t memoryMapSize;
@@ -11,6 +44,8 @@ typedef struct _loader_boot_info
     uint32_t mapDescriptorVersion;
     uint64_t pageBitmapBase;
     uint64_t pageBitmapSize;
+    uint64_t kernelBase;
+    uint64_t kernelSize;
     uint64_t frameBufferBase;
     uint64_t frameBufferSize;
     uint32_t frameBufferWidth;

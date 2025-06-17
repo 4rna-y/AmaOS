@@ -1,9 +1,15 @@
 #pragma once
 
-#include <stdint.h>
+#include "Types.h"
 
 typedef struct _size
 {
-    uint32_t width;
-    uint32_t height;
+    u32 width;
+    u32 height;
 } SIZE;
+
+typedef struct _size_f
+{
+    float width;
+    float height;
+} SIZE_F;

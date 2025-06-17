@@ -1,9 +1,14 @@
 #pragma once
 
-#include <stdint.h>
+#include "Types.h"
 
 #include "KernelStatus.h"
 
-#define CHARACTOR_BITMAP_HEIGHT 8
+namespace stdcharbmp
+{
+    #define CHARACTOR_BITMAP_HEIGHT 8
 
-const uint8_t* get_char_bitmap(char c);
+    void init() noexcept;
+
+    const u8* get_char_bitmap(char c) noexcept;
+}

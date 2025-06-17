@@ -1,9 +1,9 @@
 #pragma once
 
-#include <stdint.h>
+#include "Types.h"
 
 typedef struct _point
 {
-    uint64_t x;
-    uint64_t y;
+    u64 x;
+    u64 y;
 } POINT;
