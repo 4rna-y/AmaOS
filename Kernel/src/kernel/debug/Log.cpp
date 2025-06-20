@@ -14,56 +14,62 @@ namespace debug
     {    
         if (hex)
         {
-            char buf[18];
-            buf[17] = '\0';
+            char buf[20];
+            buf[19] = '\0';
+            buf[18] = '\n';
             
+            u64 temp_val = value;
             for (int i = 0; i < 16; ++i)
             {
-                u8 digit = static_cast<u8>(value & 0xF);
-                buf[16 - i] = (digit < 10) ? ('0' + digit) : ('A' + (digit - 10));
-                value >>= 4;
+                u8 digit = static_cast<u8>(temp_val & 0xF);
+                buf[17 - i] = (digit < 10) ? ('0' + digit) : ('A' + (digit - 10));
+                temp_val >>= 4;
             }
             
             buf[0] = '0';
             buf[1] = 'x';
-            
-            int idx = 2;
-            while (idx < 16 && buf[idx] == '0')
+
+            putc(buf[0]);
+            putc(buf[1]);
+
+            int print_start_idx = 2;
+            while (print_start_idx < 17 && buf[print_start_idx] == '0')
             {
-                ++idx;
+                print_start_idx++;
             }
-            if (idx == 16)
+
+            for (int i = print_start_idx; i <= 17; ++i)
             {
-                --idx;
+                putc(buf[i]);
             }
-            for (; buf[idx] != '\0'; ++idx)
-            {
-                putc(buf[idx]);
-            }
+            putc(buf[18]);
         }
         else
         {
-            char buf[21];
-            int  pos = 20;
-            buf[pos] = '\0';
+            char buf[22];
+            int current_idx = 21;
 
-            if (value == 0)
+            buf[current_idx--] = '\0';
+            buf[current_idx--] = '\n';
+
+            u64 temp_val = value;
+            if (temp_val == 0)
             {
-                buf[--pos] = '0';
+                buf[current_idx--] = '0';
             }
             else
             {
-                while (value != 0 && pos > 0)
+                while (temp_val != 0 && current_idx >= 0)
                 {
-                    u8 digit = static_cast<u8>(value % 10);
-                    buf[--pos] = '0' + digit;
-                    value /= 10;
+                    u8 digit = static_cast<u8>(temp_val % 10);
+                    buf[current_idx--] = '0' + digit;
+                    temp_val /= 10;
                 }
             }
-            
-            for (; buf[pos] != '\0'; ++pos)
+
+            for (int i = current_idx + 1; buf[i] != '\0'; ++i)
             {
-                putc(buf[pos]);
+                putc(buf[i]);
             }
         }
     }

@@ -17,11 +17,24 @@
 
 #define PAGE_SIZE   4096ULL
 
-#define R_X86_64_RELATIVE 8
-#define R_X86_64_64 1
+#define R_X86_64_NONE       0
+#define R_X86_64_64         1
+#define R_X86_64_PC32       2
+#define R_X86_64_PLT32      4
+#define R_X86_64_GLOB_DAT   6
+#define R_X86_64_JUMP_SLOT  7
+#define R_X86_64_RELATIVE   8
+#define R_X86_64_32S        11
 
 #define BITMAP_SET(b, idx)   ((b)[(idx) >> 3] |=  (1U << ((idx) & 7)))
 #define BITMAP_CLR(b, idx)   ((b)[(idx) >> 3] &= ~(1U << ((idx) & 7)))
+
+UINT64 ResolveSym(Elf64_Sym* symtab, UINT32 symIndex, UINT64 bias)
+{
+    if (!symtab) return 0;
+    Elf64_Sym* s = &symtab[symIndex];
+    return bias + s->st_value;
+}
 
 EFI_STATUS LoadKernelElf(
     IN VOID*    elfBuffer,
@@ -61,7 +74,6 @@ EFI_STATUS LoadKernelElf(
 
     if (originalBase == UINT64_MAX) return EFI_INVALID_PARAMETER;
 
-
     for (UINTN i = 0; i < ehdr->e_phnum; i++) 
     {
         if (phdr[i].p_type != PT_LOAD) continue;
@@ -85,50 +97,102 @@ EFI_STATUS LoadKernelElf(
         SetMem(dest + phdr[i].p_filesz, phdr[i].p_memsz - phdr[i].p_filesz, 0);
     }
 
+    const UINT64 bias = loadBase - originalBase;
+
     Elf64_Dyn* dyn = NULL;
     for (UINTN i = 0; i < ehdr->e_phnum; i++)
     {
         if (phdr[i].p_type == PT_DYNAMIC)
         {
-            dyn = (Elf64_Dyn*)(UINTN)(loadBase + phdr[i].p_vaddr);
+            dyn = (Elf64_Dyn*)(UINTN)(bias + phdr[i].p_vaddr);
             break;
         }
     }
 
+    Elf64_Rela* rela = NULL;
+    UINTN relaCount = 0;
+    Elf64_Rela* jmprel = NULL;
+    UINTN jmprelCount = 0;
+    Elf64_Sym* symtab = NULL;
+    char* strtab = NULL;
+
+
     if (dyn)
     {
-        Elf64_Rela* rela = NULL;
-        UINTN rela_count = 0;
-
         for (Elf64_Dyn* d = dyn; d->d_tag != DT_NULL; d++)
         {
-            if (d->d_tag == DT_RELA)
+            switch (d->d_tag)
             {
-                rela = (Elf64_Rela*)(UINTN)(loadBase + d->d_un.d_ptr);
-            }
-            else
-            if (d->d_tag == DT_RELASZ)
-            {
-                rela_count = d->d_un.d_val / sizeof(Elf64_Rela);
-            }
-        }
-
-        for (UINTN i = 0; i < rela_count; i++)
-        {
-            Elf64_Rela* r = &rela[i];
-            UINT64* where = (UINT64*)(UINTN)(loadBase + r->r_offset);
-            UINT32 type = ELF64_R_TYPE(r->r_info);
-            
-            switch (type)
-            {
-                case R_X86_64_RELATIVE:
-                    *where = loadBase + r->r_addend;
+                case DT_RELA:
+                    rela = (Elf64_Rela*)(UINTN)(bias + d->d_un.d_ptr);
                     break;
-                case R_X86_64_64:
-                    *where = loadBase + r->r_addend;
+                case DT_RELASZ:
+                    relaCount = d->d_un.d_val / sizeof(Elf64_Rela);
+                    break;
+                case DT_JMPREL:
+                    jmprel = (Elf64_Rela*)(UINTN)(bias + d->d_un.d_ptr);
+                    break;
+                case DT_PLTRELSZ:
+                    jmprelCount = d->d_un.d_val / sizeof(Elf64_Rela);
+                    break;
+                case DT_SYMTAB:
+                    symtab = (Elf64_Sym*)(UINTN)(bias + d->d_un.d_ptr);
+                    break;
+                case DT_STRTAB:
+                    strtab = (char*)(UINTN)(bias + d->d_un.d_ptr);
                     break;
                 default:
                     break;
+            }
+        }
+
+        for (UINTN i = 0; i < relaCount; i++)
+        {
+            Elf64_Rela* r = &rela[i];
+            UINT64* where = (UINT64*)(UINTN)(bias + r->r_offset);
+            UINT32 type = ELF64_R_TYPE(r->r_info);
+            UINT32 sym = ELF64_R_SYM(r->r_info);
+            UINT64 s = ResolveSym(symtab, sym, bias);
+            UINT64 a = r->r_addend;
+            UINT64 p = (UINT64)(UINTN)where;
+            
+            switch (type)
+            {
+                case R_X86_64_RELATIVE: *where = bias + a; break;
+                case R_X86_64_64:
+                case R_X86_64_GLOB_DAT: 
+                {
+                    if (sym == 0 || symtab == NULL) *where = bias + r->r_addend;
+                    else *where = s + r->r_addend;
+                    break;
+                }
+                case R_X86_64_32S: 
+                {
+                    if (sym == 0 || symtab == NULL) *(INT32*)where = (INT32)(bias + r->r_addend);
+                    else *(INT32*)where = (INT32)(s + a); 
+                    break;
+                }
+                case R_X86_64_PC32: 
+                case R_X86_64_PLT32: 
+                {
+                    if (sym == 0 || symtab == NULL) *(INT32*)where = (INT32)(bias + r->r_addend - p);
+                    else *(INT32*)where = (INT32)(s + a - p); 
+                    break;
+                }
+
+                default: break;
+            }
+        }
+        
+        for (UINTN i = 0; i < jmprelCount; i++)
+        {
+            Elf64_Rela* r = &jmprel[i];
+            if (ELF64_R_TYPE(r->r_info) == R_X86_64_JUMP_SLOT && symtab)
+            {
+                UINT64* where = (UINT64*)(UINTN)(bias + r->r_offset);
+                UINT32 sym = ELF64_R_SYM(r->r_info);
+                UINT64 s = ResolveSym(symtab, sym, bias);
+                *where = s + r->r_addend;
             }
         }
     }

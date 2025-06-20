@@ -11,10 +11,10 @@ COMMON   := -target $(TARGET) -ffreestanding -nostdlib \
             -m64 -mcmodel=kernel -mno-red-zone          
 
 CXXFLAGS := $(COMMON) -O2 -Wall -Wextra -std=gnu++20 \
-            -fno-exceptions -fno-rtti -fPIE -mcmodel=kernel \
+            -fno-exceptions -fno-rtti -fPIE -fvisibility=hidden -mcmodel=kernel \
             -I. -I./include/kernel -I./include/common
 
-ASFLAGS  := $(COMMON) -x assembler-with-cpp
+ASFLAGS  := $(COMMON) -x assembler-with-cpp -fPIE -O2
 
 SRC_CPP  := $(shell find $(SRCDIR) -name '*.cpp')
 SRC_S    := $(shell find $(SRCDIR) -name '*.S')

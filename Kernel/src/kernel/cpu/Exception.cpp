@@ -17,6 +17,7 @@ static inline void fill_registers(PANIC_INFO& pinfo)
     __asm__ volatile("mov %%rsi,%0":"=m"(pinfo.registers[4]));
     __asm__ volatile("mov %%rdi,%0":"=m"(pinfo.registers[5]));
     __asm__ volatile("mov %%rbp,%0":"=m"(pinfo.registers[6]));
+    __asm__ volatile("mov %%rsp,%0":"=m"(pinfo.registers[7]));
     __asm__ volatile("mov %%r8,%0" :"=m"(pinfo.registers[8]));
     __asm__ volatile("mov %%r9,%0" :"=m"(pinfo.registers[9]));
     __asm__ volatile("mov %%r10,%0":"=m"(pinfo.registers[10]));

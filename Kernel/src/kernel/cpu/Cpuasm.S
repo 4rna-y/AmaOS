@@ -1,6 +1,6 @@
 .intel_syntax noprefix
 .section .text
-.global cpu_lgdt, cpu_lidt, cpu_load_tss_m16, cpu_far_switch, cpu_reset_tr
+.global cpu_lgdt, cpu_lidt, cpu_load_tss_m16, cpu_far_switch
 
 cpu_lgdt:
     lgdt [rdi]
